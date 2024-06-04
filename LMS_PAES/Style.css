@@ -1,5 +1,6 @@
 body {
   font-family: Arial, sans-serif;
+  
 }
 
 .sidebar {
@@ -46,6 +47,16 @@ body {
 }
 
 .content {
-  margin-left: 250px;
+  margin-left: 231px;
   padding: 20px;
+}
+
+#Welcome{
+  margin-left: 20px;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
