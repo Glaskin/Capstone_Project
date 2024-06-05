@@ -11,7 +11,9 @@
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous">
-    <link rel="stylesheet" href="Style.css">
+    <link rel="stylesheet" href="Dashboard.css">
+    <link rel="stylesheet" href="dark-switch.css">
+    <!-- Link to the dark mode switch CSS -->
 
   </head>
 
@@ -89,15 +91,29 @@
           </ul>
         </div>
       </div>
-      
-      <!-- Bootstrap 5 switch -->
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="darkModeSwitch"
-          checked>
-        <label class="form-check-label" for="darkModeSwitch">Dark Mode</label>
-      </div>
+
+      <!-- Custom Dark Mode Switch -->
+      <label for="theme" class="theme">
+        <span class="theme__toggle-wrap">
+          <input id="theme" class="theme__toggle" type="checkbox" role="switch"
+            name="theme" value="dark">
+          <span class="theme__fill"></span>
+          <span class="theme__icon">
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+            <span class="theme__icon-part"></span>
+          </span>
+        </span>
+      </label>
     </nav>
     <!-- end of navigation -->
+
     <div class="navbar navbar-expand-sm">
       Menu
     </div>
@@ -107,7 +123,7 @@
         <img src="your-logo-url.png" alt="Logo">
       </div>
       <div class="sidebar-header">
-        
+
       </div>
       <a href="#"><i class="bi bi-house-door"></i>Calendar</a>
       <a href="#"><i class="bi bi-book"></i></a>
@@ -124,50 +140,50 @@
 
     <div class="content">
       <!-- Your main content goes here -->
-    <div id="Welcome">
+      <div id="Welcome" style="margin-top: 20px;">
         <h1>Welcome to the Dashboard</h1>
         <p>Your content goes here...</p>
-    </div>
-      
-    <div class="row" style="margin-left: 10px;">
-      <div class="col-sm-6 mb-3 mb-sm-0">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Recent Activity</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+
+      <div class="row" style="margin-left: 10px;">
+        <div class="col-sm-6 mb-3 mb-sm-0">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Recent Activity</h5>
+              <p class="card-text">With supporting text below as a natural
+                lead-in to additional content.</p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Next Lesson</h5>
+              <p class="card-text">With supporting text below as a natural
+                lead-in to additional content.</p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
           </div>
         </div>
       </div>
-      <div class="col-sm-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Next Lesson</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
+
+      <div class="card" style="margin-top: 20px; margin-left: 20px;">
+        <div class="card-header">
+          Featured
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">Special title treatment</h5>
+          <p class="card-text">With supporting text below as a natural lead-in
+            to additional content.</p>
+          <a href="#" class="btn btn-primary">Go somewhere</a>
         </div>
       </div>
+
+      <footer class="bg-warning text-center py-3">
+        <p>&copy; 2024 LMS. All rights reserved.</p>
+      </footer>
     </div>
-
-    <div class="card" style="margin-top: 20px;">
-      <div class="card-header">
-        Featured
-      </div>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-
-     <footer class="bg-warning text-center py-3">
-      <p>&copy; 2024 LMS. All rights reserved.</p>
-    </footer> 
-    </div>
-
-    
-
 
     <script src="darkmode.js"></script>
     <script

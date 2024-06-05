@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     const htmlElement = document.documentElement;
-    const switchElement = document.getElementById('darkModeSwitch');
+    const switchElement = document.getElementById('theme');
 
     // Set the default theme to dark if no setting is found in local storage
     const currentTheme = localStorage.getItem('bsTheme') || 'dark';
