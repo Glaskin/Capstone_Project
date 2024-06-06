@@ -11,7 +11,7 @@ body {
   background-color: #343a40;
   padding-top: 20px;
 }
-
+/*
 .sidebar a {
   padding: 15px;
   text-decoration: none;
@@ -45,11 +45,7 @@ body {
   margin-top: 10px;
 }
 
-.content {
-  margin-left: 135px;
-  padding: 15px;
-}
-
+*/
 #Welcome {
   margin-left: 20px;
 }
