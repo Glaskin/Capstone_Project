@@ -1,15 +1,18 @@
-function login(){
-    const sampleEmail = 'admin@email.com';
-    const samplePass = 'pass123';
+function login(event) {
+  event.preventDefault();
 
-    const email = document.getElementById('inputEmail').value;
-    const password = document.getElementById('inputPassword').value;
+  const sampleEmail = "admin@email.com";
+  const samplePass = "pass123";
 
-    if(email === sampleEmail && password === samplePass){
-        window.location.href = "dashboard.html"
-        console.log('LOGGED IN');
-    }
-    else{
-        
-    }
+  const email = document.getElementById("inputEmail").value;
+  const password = document.getElementById("inputPassword").value;
+
+  if (email === sampleEmail && password === samplePass) {
+    window.location.href = "dashboard.html";
+    console.log("LOGGED IN");
+  } else {
+    alert("Incorrect email or password");
+  }
+
+  return false;
 }
