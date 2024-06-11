@@ -55,3 +55,16 @@ footer {
   bottom: 0;
   width: 100%;
 }
+
+.navbar-brand-logo {
+  height: 50px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #030303;
+  display: flex;
+  align-items: center;
+}
+.navbar-brand-logo span {
+  font-size: 1.5rem;
+  margin-left: 10px;
+}
