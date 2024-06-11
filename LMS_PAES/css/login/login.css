@@ -1,0 +1,49 @@
+@media only screen and (max-width: 600px){
+    form{
+        width: 100% !important;
+    }
+}
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+ background: linear-gradient(90deg, rgb(240, 162, 46)0%, rgb(220, 209, 57)35%, rgb(218, 142, 27) 100%);
+
+}
+
+form{
+    width: 24%;
+    background-color: white;
+    padding: 50px;
+    border-radius: 20px;
+    margin-top: 150px;
+}
+
+.btn-primary{
+    width: 100%;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(90deg, rgb(240, 162, 46)0%, rgb(220, 209, 57)35%, rgb(218, 142, 27) 100%);
+}
+
+.form-control{
+    color: rgba(0, 0, 0, 0.87);
+    border-bottom-color: rgba(0, 0, 0, 0.42);
+    box-shadow: none !important;
+    border: none;
+    border-bottom: 1px solid;
+    border-radius: 4px 4px 0 0;
+}
+
+h4{
+    font-size: 2rem !important;
+    font-weight: 700;
+}
+
+.form-label{
+    font-family: 700 !important;
+}
