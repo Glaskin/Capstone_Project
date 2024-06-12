@@ -14,6 +14,61 @@ body {
   background-color: #343a40;
   padding-top: 20px;
 }
+
+#Welcome {
+  margin-left: 20px;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.navbar-brand-logo {
+  height: 50px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #030303;
+  display: flex;
+  align-items: center;
+}
+.navbar-brand-logo span {
+  font-size: 1.5rem;
+  margin-left: 10px;
+}
+
+
+*/
+#Welcome {
+  margin-left: 20px;
+}
+
+.content{
+  flex: 1;
+}
+
+footer {
+  
+  height: 100px; /* adjust the height to your needs */
+  padding: 10px;
+  text-align: center;
+}
+
+.navbar-brand-logo {
+  height: 50px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #030303;
+  display: flex;
+  align-items: center;
+}
+.navbar-brand-logo span {
+  font-size: 1.5rem;
+  margin-left: 10px;
+}
+
+
 /*
 .sidebar a {
   padding: 15px;
@@ -46,33 +101,4 @@ body {
 
 .sidebar .sidebar-header + a {
   margin-top: 10px;
-}
-
-*/
-#Welcome {
-  margin-left: 20px;
-}
-
-.content{
-  flex: 1;
-}
-
-footer {
-  
-  height: 100px; /* adjust the height to your needs */
-  padding: 10px;
-  text-align: center;
-}
-
-.navbar-brand-logo {
-  height: 50px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #030303;
-  display: flex;
-  align-items: center;
-}
-.navbar-brand-logo span {
-  font-size: 1.5rem;
-  margin-left: 10px;
 }
