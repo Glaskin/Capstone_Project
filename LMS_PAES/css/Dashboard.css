@@ -15,15 +15,7 @@ body {
   padding-top: 20px;
 }
 
-#Welcome {
-  margin-left: 20px;
-}
 
-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-}
 
 .navbar-brand-logo {
   height: 50px;
@@ -39,7 +31,6 @@ footer {
 }
 
 
-*/
 #Welcome {
   margin-left: 20px;
 }
