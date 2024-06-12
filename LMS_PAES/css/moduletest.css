@@ -1,0 +1,18 @@
+body {
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+}
+
+.step-content {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.next-btn,
+.prev-btn,
+.finish-btn {
+  margin-top: 20px;
+}
