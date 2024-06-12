@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   finishBtn.addEventListener("click", () => {
     alert("Congratulations! You have completed the training module.");
     // Here you can redirect to another page or perform other actions
-    window.location.href = 'Dashboard.html';
+    window.location.href = 'Course.html';
   });
 
   // Initialize the first step
