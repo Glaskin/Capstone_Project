@@ -12,12 +12,8 @@
 }
 
 body {
-  background: linear-gradient(
-    90deg,
-    rgb(240, 162, 46) 0%,
-    rgb(220, 209, 57) 35%,
-    rgb(218, 142, 27) 100%
-  );
+  background-image: url("../../img/Background\ Login.jpg");
+  background-size: 100%;
 }
 
 form {
