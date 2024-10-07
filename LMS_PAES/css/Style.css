@@ -10,8 +10,6 @@ body {
   }
   
   footer {
-    position: fixed;
-    height: 100px; /* adjust the height to your needs */
-    padding: 10px;
-    text-align: center;
+    margin-top: 20px;
+    
   }
