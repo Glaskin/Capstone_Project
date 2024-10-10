@@ -1,8 +1,8 @@
 function login(event) {
   event.preventDefault();
 
-  const sampleEmail = "admin@email.com";
-  const samplePass = "pass123";
+  const sampleEmail = "";
+  const samplePass = "";
 
   const email = document.getElementById("inputEmail").value;
   const password = document.getElementById("inputPassword").value;
