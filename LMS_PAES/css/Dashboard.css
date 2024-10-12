@@ -1,61 +1,106 @@
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding-top: 60px;
+  font-family: "Poppins", sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
 }
 
-.sidebar {
-  height: 100vh;
-  width: 150px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #343a40;
-  padding-top: 20px;
+.content {
+  margin-top: 100px;
 }
 
-
-
-.navbar-brand-logo {
-  height: 50px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #030303;
-  display: flex;
-  align-items: center;
-}
-.navbar-brand-logo span {
-  font-size: 1.5rem;
-  margin-left: 10px;
+h1,
+h2 {
+  color: #353535;
 }
 
-
-#Welcome {
-  margin-left: 20px;
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
 }
 
-.content{
-  flex: 1;
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
 }
 
+/* Navbar Styles */
+.navbar {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand-logo img {
+  margin-right: 10px;
+}
+
+.nav-link {
+  font-size: 1rem;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #f39c12;
+}
+
+/* Card Styles */
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 10px;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-weight: 600;
+  color: #444;
+}
+
+.card-text {
+  font-size: 1rem;
+  color: #666;
+}
+
+.btn-primary {
+  background-color: #f39c12;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #e67e22;
+}
+
+/* Progress Bar Styles */
+.progress {
+  height: 20px;
+  border-radius: 10px;
+}
+
+.progress-bar {
+  background-color: #3498db;
+}
+
+/* List Group Styles */
+.list-group-item {
+  border: none;
+  font-size: 1rem;
+  padding: 1rem;
+}
+
+.badge {
+  font-size: 0.875rem;
+}
+
+/* Footer Styles */
 footer {
-  
-  height: 60px; /* adjust the height to your needs */
-  padding: 10px;
-  text-align: center;
+  background-color: #f39c12;
+  color: #fff;
+  font-size: 1rem;
 }
 
-.navbar-brand-logo {
-  height: 50px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #030303;
-  display: flex;
-  align-items: center;
-}
-.navbar-brand-logo span {
-  font-size: 1.5rem;
-  margin-left: 10px;
+footer p {
+  margin: 0;
 }
