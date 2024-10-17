@@ -26,21 +26,21 @@ document.addEventListener("DOMContentLoaded", function() {
         image: "img/course-image-3.jpg"
       }
     ],
-    deadlines: [
+    announcements: [
       {
-        title: "Assignment: JavaScript Basics",
-        dueDate: "Oct 16",
-        type: "danger"
+        title: "System Maintenance",
+        date: "Oct 16",
+        type: "info"
       },
       {
-        title: "Lab Activity: Network Technologies",
-        dueDate: "Oct 18",
+        title: "New Course Available: Advanced CSS",
+        date: "Oct 18",
+        type: "success"
+      },
+      {
+        title: "Holiday Schedule Update",
+        date: "Oct 23",
         type: "warning"
-      },
-      {
-        title: "Quiz: Data Privacy Module",
-        dueDate: "Oct 23",
-        type: "primary"
       }
     ]
   };
@@ -58,33 +58,34 @@ document.addEventListener("DOMContentLoaded", function() {
     const courseCard = document.createElement("div");
     courseCard.className = "col-md-4 mb-4";
     courseCard.innerHTML = `
-      <div class="card">
-        <img src="${course.image}" class="card-img-top" alt="Course Image" height="236">
-        <div class="card-body">
-          <h5 class="card-title">${course.title}</h5>
-          <p class="card-text">${course.description}</p>
-          <div class="progress mb-3">
-            <div class="progress-bar" role="progressbar" style="width: ${course.progress}%" aria-valuenow="${course.progress}" aria-valuemin="0" aria-valuemax="100">${course.progress}% Complete</div>
-          </div>
-          <a href="Course.html" class="btn btn-primary">${course.progress === 0
-            ? "Start"
-            : "Continue"}</a>
-        </div>
-      </div>
-    `;
+            <div class="card">
+              <img src="${course.image}" class="card-img-top" alt="Course Image" height="236">
+              <div class="card-body">
+                <h5 class="card-title">${course.title}</h5>
+                <p class="card-text">${course.description}</p>
+                <div class="progress mb-3">
+                  <div class="progress-bar" role="progressbar" style="width: ${course.progress}%" aria-valuenow="${course.progress}" aria-valuemin="0" aria-valuemax="100">${course.progress}% Complete</div>
+                </div>
+                <a href="Course.html" class="btn btn-primary">${course.progress ===
+                0
+                  ? "Start"
+                  : "Continue"}</a>
+              </div>
+            </div>
+          `;
     courseList.appendChild(courseCard);
   });
 
-  // Populate upcoming deadlines
-  const upcomingDeadlines = document.getElementById("upcomingDeadlines");
-  user.deadlines.forEach(deadline => {
+  // Populate announcement board
+  const announcementBoard = document.getElementById("announcementBoard");
+  user.announcements.forEach(announcement => {
     const listItem = document.createElement("li");
     listItem.className =
       "list-group-item d-flex justify-content-between align-items-center";
     listItem.innerHTML = `
-      ${deadline.title}
-      <span class="badge bg-${deadline.type} rounded-pill">Due: ${deadline.dueDate}</span>
-    `;
-    upcomingDeadlines.appendChild(listItem);
+            ${announcement.title}
+            <span class="badge bg-${announcement.type} rounded-pill">Date: ${announcement.date}</span>
+          `;
+    announcementBoard.appendChild(listItem);
   });
 });
