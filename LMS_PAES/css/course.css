@@ -1,0 +1,93 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.content {
+  margin-top: 100px;
+}
+
+h1,
+h2,
+h4 {
+  color: #353535;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Navbar Styles */
+.navbar {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand-logo img {
+  margin-right: 10px;
+}
+
+.nav-link {
+  font-size: 1rem;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: #f39c12;
+}
+
+/* Course Content Styles */
+.media {
+  align-items: center;
+}
+
+.media img {
+  margin-right: 20px;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.media-body {
+  color: #444;
+}
+
+ul {
+  padding-left: 20px;
+  list-style-type: disc;
+  color: #666;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: #f39c12;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #e67e22;
+}
+
+/* Footer Styles */
+footer {
+  background-color: #f39c12;
+  color: #fff;
+  font-size: 1rem;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+footer p {
+  margin: 0;
+}
