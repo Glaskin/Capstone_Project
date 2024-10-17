@@ -9,7 +9,7 @@ let courses = [
     {id: 2, name: "JavaScript 101", description: "Learn the basics of JavaScript"}
 ];
 
-// Load initial data
+// Load initial data 
 window.onload = function() {
     loadUsers();
     loadCourses();
@@ -95,4 +95,39 @@ function editCourse(courseId) {
 function deleteCourse(courseId) {
     courses = courses.filter(c => c.id !== courseId);
     loadCourses();
+}
+
+// Announcement
+let announcementId = 1; // To keep track of announcement IDs
+
+function addAnnouncement() {
+    const title = document.getElementById('announcementTitle').value;
+    const content = document.getElementById('announcementContent').value;
+
+    if (title && content) {
+        const table = document.getElementById('announcements-table');
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td>${ announcementId}</td>
+            <td>${title}</td>
+            <td>${content}</td>
+            <td>
+                <button class="btn btn-danger" onclick="deleteAnnouncement(${announcementId})">Delete</button>
+            </td>
+        `;
+
+        announcementId++;
+        document.getElementById('announcementTitle').value = '';
+        document.getElementById('announcementContent').value = '';
+    }
+}
+
+function deleteAnnouncement(id) {
+    const table = document.getElementById('announcements-table');
+    for (let i = 0; i < table.rows.length; i++) {
+        if (table.rows[i].cells[0].textContent === id.toString()) {
+            table.deleteRow(i);
+            break;
+        }
+    }
 }
