@@ -1,22 +1,11 @@
+// JavaScript code to manage the faculty dashboard functionalities
+
 // Functions for Dynamic Content
 document.addEventListener('DOMContentLoaded', function () {
-  // Sample faculty data (to be replaced with data from a backend system)
+  // Sample faculty data (initially empty to remove pre-existing courses)
   const faculty = {
     name: 'Dr. Jane Smith',
-    courses: [
-      {
-        title: 'Web Development',
-        students: 25
-      },
-      {
-        title: 'Data Structures',
-        students: 30
-      },
-      {
-        title: 'Database Management',
-        students: 20
-      }
-    ],
+    courses: [], // Removed existing courses
     studentsProgress: [
       {
         name: 'John Doe',
@@ -39,22 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Set faculty name
   document.getElementById('userName').textContent = faculty.name
 
-  // Populate courses list
+  // Populate courses list (initially empty)
   const coursesList = document.getElementById('coursesList')
-  faculty.courses.forEach(course => {
-    const courseCard = document.createElement('div')
-    courseCard.className = 'col-md-4 mb-4'
-    courseCard.innerHTML = `
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">${course.title}</h5>
-                <p class="card-text">Number of Students: ${course.students}</p>
-                <a href="#" class="btn btn-primary">Manage Course</a>
-              </div>
-            </div>
-          `
-    coursesList.appendChild(courseCard)
-  })
 
   // Populate students progress
   const studentsProgress = document.getElementById('studentsProgress')
@@ -94,4 +69,35 @@ document.addEventListener('DOMContentLoaded', function () {
           `
       announcementBoard.appendChild(listItem)
     })
-})
+
+  // Add Course Functionality
+  const addCourseBtn = document.getElementById('add-course-btn');
+  const courseContainer = document.getElementById('coursesList');
+
+  if (addCourseBtn && courseContainer) {
+    addCourseBtn.addEventListener('click', () => {
+      const courseName = prompt('Enter the course name:');
+      if (courseName) {
+        const courseElement = document.createElement('div');
+        courseElement.className = 'col-md-4 mb-4';
+        courseElement.innerHTML = `
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">${courseName}</h5>
+                    <p class="card-text">Number of Students: 0</p>
+                    <a href="#" class="btn btn-primary">Manage Course</a>
+                    <button class="btn btn-danger remove-course-btn mt-2">Remove Course</button>
+                  </div>
+                </div>
+              `;
+        courseContainer.appendChild(courseElement);
+
+        // Add event listener for the remove button
+        const removeBtn = courseElement.querySelector('.remove-course-btn');
+        removeBtn.addEventListener('click', () => {
+          courseContainer.removeChild(courseElement);
+        });
+      }
+    });
+  }
+});
