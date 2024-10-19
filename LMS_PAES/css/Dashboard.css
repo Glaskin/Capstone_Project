@@ -1,106 +1,86 @@
-body {
-  font-family: "Poppins", sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
-}
+/* Style.css and Dashboard.css combined to fix alignment issues */
 
-.content {
-  margin-top: 100px;
-}
-
-h1,
-h2 {
-  color: #353535;
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-h2 {
-  font-size: 2rem;
-  font-weight: 600;
-}
-
-/* Navbar Styles */
-.navbar {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.navbar-brand-logo img {
-  margin-right: 10px;
-}
-
-.nav-link {
-  font-size: 1rem;
-  color: #333;
-  transition: color 0.3s;
-}
-
-.nav-link:hover {
-  color: #f39c12;
-}
-
-/* Card Styles */
+/* General card styling for course items */
 .card {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border: none;
   border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: 20px;
 }
 
-.card-title {
-  font-weight: 600;
-  color: #444;
+/* Specific styling for add and remove buttons to align properly */
+#add-course-btn {
+  display: block;
+  margin: 0 auto;
 }
 
-.card-text {
-  font-size: 1rem;
-  color: #666;
+.card .btn {
+  margin-top: 10px;
+  width: auto;
+  text-align: center;
+  display: inline-block;
+  padding: 8px 16px;
 }
 
+.manage-course-btn {
+  margin-right: 4%;
+}
+
+.remove-course-btn {
+  width: auto;
+  text-align: center;
+  padding: 8px 16px;
+}
+
+/* Container and row adjustments */
+#coursesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.col-md-4 {
+  flex: 1 1 calc(33.333% - 20px);
+  box-sizing: border-box;
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+  .col-md-4 {
+    flex: 1 1 calc(50% - 20px);
+  }
+}
+
+@media (max-width: 576px) {
+  .col-md-4 {
+    flex: 1 1 100%;
+  }
+}
+
+/* Custom styling for the "Manage Course" button */
 .btn-primary {
-  background-color: #f39c12;
+  background-color: #ff9800;
   border: none;
-  transition: background-color 0.3s;
 }
 
 .btn-primary:hover {
-  background-color: #e67e22;
+  background-color: #e68900;
 }
 
-/* Progress Bar Styles */
+/* Custom styling for progress bars */
 .progress {
   height: 20px;
   border-radius: 10px;
 }
 
 .progress-bar {
-  background-color: #3498db;
-}
-
-/* List Group Styles */
-.list-group-item {
-  border: none;
-  font-size: 1rem;
-  padding: 1rem;
-}
-
-.badge {
-  font-size: 0.875rem;
-}
-
-/* Footer Styles */
-footer {
-  background-color: #f39c12;
-  color: #fff;
-  font-size: 1rem;
-}
-
-footer p {
-  margin: 0;
+  background-color: #4caf50;
 }
