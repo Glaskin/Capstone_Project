@@ -1,4 +1,4 @@
-/* General body styling */
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -10,7 +10,7 @@ body {
     align-items: center;
 }
 
-/* Quiz container styling */
+
 .quiz-container {
     background-color: #fff;
     padding: 20px;
@@ -20,13 +20,13 @@ body {
     width: 100%;
 }
 
-/* Quiz title */
+
 h2 {
     margin-bottom: 20px;
     color: #333;
 }
 
-/* Question styling */
+
 .question {
     padding: 20px;
     border: 2px solid #007BFF;
@@ -34,13 +34,13 @@ h2 {
     margin-bottom: 15px;
 }
 
-/* Styling the answer options */
+
 .answers label {
     display: block;
     margin-bottom: 10px;
 }
 
-/* Button styling */
+
 .button {
     display: inline-block;
     padding: 10px 20px;
