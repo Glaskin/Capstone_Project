@@ -1,0 +1,54 @@
+/* General body styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Quiz container styling */
+.quiz-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: auto;
+}
+
+/* Quiz title */
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Question styling */
+.question {
+    padding: 20px;
+    border: 2px solid #007BFF;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+/* Styling the answer options */
+.answers label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* Button styling */
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 10px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
