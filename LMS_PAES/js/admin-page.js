@@ -131,3 +131,37 @@ function deleteAnnouncement(id) {
         }
     }
 }
+
+// Sample audit log data (replace with actual data fetching logic)
+const auditLogData = [
+    { timestamp: ' 2023-02-20 14:30:00', user: 'admin', action: 'Added new user', details: 'User ID: 12345' },
+    { timestamp: '2023-02-19 10:45:00', user: 'moderator', action: 'Updated course', details: 'Course ID: 67890' },
+    // ...
+];
+
+// Function to filter audit log by date
+function filterAuditLog() {
+    const dateFilter = document.getElementById('dateFilter').value;
+    const filteredData = auditLogData.filter((entry) => entry.timestamp.includes(dateFilter));
+    renderAuditLog(filteredData);
+}
+
+// Function to render audit log table
+function renderAuditLog(data) {
+    const tableBody = document.getElementById('auditlog-table');
+    tableBody.innerHTML = '';
+    data.forEach((entry) => {
+        const tableRow = document.createElement('tr');
+        tableRow.innerHTML = `
+            <td>${entry.timestamp}</td>
+            <td>${entry.user}</td>
+            <td>${entry.action}</td>
+            <td>${entry.details}</td>
+        `;
+        tableBody.appendChild(tableRow);
+    });
+}
+
+// Initial render of audit log
+renderAuditLog(auditLogData);
+
