@@ -1,34 +1,61 @@
 <?php
-// Start a session to manage user data if needed
-session_start();
+// Database connection setup
+$host = 'localhost';
+$dbname = 'lms_database';
+$username = 'root';
+$password = 'pogi';
 
-// Placeholder for handling form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $studentName = htmlspecialchars($_POST['studentName']);
-    $studentEmail = htmlspecialchars($_POST['studentEmail']);
-    $studentPassword = htmlspecialchars($_POST['studentPassword']);
-    $confirmPassword = htmlspecialchars($_POST['confirmPassword']);
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
 
-    // Basic validation
-    if ($studentPassword !== $confirmPassword) {
-        $error_message = 'Passwords do not match!';
-    } elseif (empty($studentName) || empty($studentEmail) || empty($studentPassword)) {
-        $error_message = 'Please fill in all fields.';
+// Initialize error message variable
+$error_message = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve and sanitize form inputs
+    $name = trim($_POST['studentName']);
+    $email = trim($_POST['studentEmail']);
+    $password = $_POST['studentPassword'];
+    $confirmPassword = $_POST['confirmPassword'];
+
+    // Validate form inputs
+    if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)) {
+        $error_message = "All fields are required.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_message = "Invalid email format.";
+    } elseif ($password !== $confirmPassword) {
+        $error_message = "Passwords do not match.";
     } else {
-        // Simulate saving the student data (e.g., to a database)
-        // Here, you would typically save the data to a database
-        $_SESSION['registered_student'] = [
-            'name' => $studentName,
-            'email' => $studentEmail,
-            'password' => password_hash($studentPassword, PASSWORD_BCRYPT) // Save hashed password for security
-        ];
-        
-        // Redirect to login page or success page
-        header("Location: LandingPage.php");
-        exit;
+        // Check if email already exists
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            $error_message = "Email is already registered.";
+        } else {
+            // Insert new student into users table without hashing password
+            $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role) VALUES (:name, :password, :email, 'student')");
+            $stmt->bindParam(':name', $name);
+            $stmt->bindParam(':password', $password);  // Store plaintext password for testing
+            $stmt->bindParam(':email', $email);
+
+            if ($stmt->execute()) {
+                // Redirect to login or dashboard
+                header("Location: LandingPage.php");
+                exit();
+            } else {
+                $error_message = "Registration failed. Please try again.";
+            }
+        }
     }
 }
 ?>
+
 
 <!doctype html>
 <html lang="en">
@@ -49,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             <?php
             // Display error message if there is one
-            if (isset($error_message)) {
+            if (!empty($error_message)) {
                 echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>';
             }
             ?>

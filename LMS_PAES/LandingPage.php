@@ -1,28 +1,55 @@
 <?php
-// Start a session to manage user login status
+// Database connection setup
+$host = 'localhost';
+$dbname = 'lms_database';
+$username = 'root';
+$password = 'pogi';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+// Initialize error message variable
+$error_message = '';
+
 session_start();
 
-// If the form is submitted, handle login
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Replace these with actual credentials or database check
-    $sampleEmail = "user@example.com";
-    $samplePass = "password123";
-
-    // Retrieve email and password from form submission
-    $email = $_POST['email'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Retrieve and sanitize form inputs
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    // Validate credentials
-    if ($email === $sampleEmail && $password === $samplePass) {
-        // Set session variable to indicate user is logged in
-        $_SESSION['loggedin'] = true;
-        $_SESSION['email'] = $email;
-
-        // Redirect to dashboard
-        header("Location: Dashboard.php");
-        exit;
+    // Validate form inputs
+    if (empty($email) || empty($password)) {
+        $error_message = "Email and password are required.";
     } else {
-        $error_message = "Incorrect email or password";
+        // Fetch user data
+        $stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Check if user exists and password is correct (plaintext comparison for testing)
+        if ($user && $user['password'] === $password) {
+            // Store user information in session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+
+            // Redirect based on user role
+            if ($user['role'] === 'admin') {
+                header("Location: AdminDashboard.php");
+            } elseif ($user['role'] === 'faculty') {
+                header("Location: FacultyDashboard.php");
+            } else {
+                header("Location: Dashboard.php"); // Redirect students to the student dashboard
+            }
+            exit();
+        } else {
+            $error_message = "Invalid email or password.";
+        }
     }
 }
 ?>
@@ -41,11 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
     <div class="container-fluid">
-        <form class="mx-auto" method="POST" action="LandingPage.php">
+        <form class="mx-auto" method="POST" action="LandingPage.php" style="max-width: 400px;">
             <h4 class="text-center">Login</h4>
 
             <?php
-            if (isset($error_message)) {
+            if (!empty($error_message)) {
                 echo '<div class="alert alert-danger" role="alert">' . htmlspecialchars($error_message) . '</div>';
             }
             ?>
@@ -68,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <button type="submit" class="btn btn-primary mt-4">Login</button>
             <hr class="mt-4 mb-3" />
-            <button type="button" onclick="window.location.href='StudentRegistration.html'" class="btn btn-secondary w-100">Register</button>
+            <button type="button" onclick="window.location.href='StudentRegistration.php'" class="btn btn-secondary w-100">Register</button>
         </form>
     </div>
 
