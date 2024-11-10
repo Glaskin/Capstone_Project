@@ -1,49 +1,67 @@
 <?php
-// Assuming you're fetching user data from a database
+// Start session and connect to the database
+session_start();
 
+$host = 'localhost';
+$dbname = 'lms_database';
+$username = 'root';
+$password = 'pogi';
 
-$user = [
-    'name' => 'John Doe',
-    'recentActivity' => 'You recently completed Module 3: Introduction to JavaScript.',
-    'nextLesson' => 'Start Module 4: Advanced JavaScript Techniques.',
-    'courses' => [
-        [
-            'title' => 'Course Title 1',
-            'description' => 'Short description of the course.',
-            'progress' => 41,
-            'image' => 'img/course-image-1.jpg',
-        ],
-        [
-            'title' => 'Course Title 2',
-            'description' => 'Short description of the course.',
-            'progress' => 15,
-            'image' => 'img/course-image-2.jpg',
-        ],
-        [
-            'title' => 'Course Title 3',
-            'description' => 'Short description of the course.',
-            'progress' => 70,
-            'image' => 'img/course-image-3.jpg',
-        ],
-    ],
-    'announcements' => [
-        [
-            'title' => 'System Maintenance',
-            'date' => 'Oct 16',
-            'type' => 'info',
-        ],
-        [
-            'title' => 'New Course Available: Advanced CSS',
-            'date' => 'Oct 18',
-            'type' => 'success',
-        ],
-        [
-            'title' => 'Holiday Schedule Update',
-            'date' => 'Oct 23',
-            'type' => 'warning',
-        ],
-    ],
-];
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+// Check if the user is logged in and has the student role
+$user_id = $_SESSION['user_id'] ?? null;
+$user_role = $_SESSION['role'] ?? null;
+
+if (!$user_id || $user_role !== 'student') {
+    header("Location: LandingPage.php"); // Redirect if not logged in or not a student
+    exit();
+}
+
+// Fetch user details based on the logged-in user
+$user = [];
+if ($user_id) {
+    // Fetch user profile
+    $stmt = $pdo->prepare("SELECT username AS name FROM users WHERE id = :user_id");
+    $stmt->execute(['user_id' => $user_id]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Fetch recent activity (last completed lesson)
+    $stmt = $pdo->prepare("SELECT lessons.title FROM lessons
+                           JOIN student_progress ON lessons.id = student_progress.lesson_id
+                           WHERE student_progress.student_id = :user_id AND student_progress.status = 'completed'
+                           ORDER BY student_progress.last_accessed DESC LIMIT 1");
+    $stmt->execute(['user_id' => $user_id]);
+    $user['recentActivity'] = $stmt->fetchColumn() ?: 'No recent activity';
+
+    // Fetch next lesson
+    $stmt = $pdo->prepare("SELECT title FROM lessons
+                           WHERE course_id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
+                           AND id NOT IN (SELECT lesson_id FROM student_progress WHERE student_id = :user_id)
+                           ORDER BY id ASC LIMIT 1");
+    $stmt->execute(['user_id' => $user_id]);
+    $user['nextLesson'] = $stmt->fetchColumn() ?: 'All lessons completed';
+
+    // Fetch enrolled courses with progress
+    $stmt = $pdo->prepare("SELECT courses.title, courses.description, courses.image, 
+                                  IFNULL(SUM(CASE WHEN student_progress.status = 'completed' THEN 1 ELSE 0 END) * 100 / COUNT(lessons.id), 0) AS progress
+                           FROM courses
+                           LEFT JOIN lessons ON courses.id = lessons.course_id
+                           LEFT JOIN student_progress ON lessons.id = student_progress.lesson_id AND student_progress.student_id = :user_id
+                           WHERE courses.id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
+                           GROUP BY courses.id");
+    $stmt->execute(['user_id' => $user_id]);
+    $user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch announcements
+    $stmt = $pdo->query("SELECT title, date, type FROM announcements WHERE type = 'system' OR course_id IN (SELECT course_id FROM enrollments WHERE student_id = $user_id)");
+    $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 
 <!DOCTYPE html>
@@ -61,8 +79,7 @@ $user = [
     <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-warning">
         <div class="container-fluid">
             <a class="navbar-brand navbar-brand-logo" href="Dashboard.php">
-                <img src="Images/abeLogo.png" alt="PAES Logo" height="40">
-                <span>PAES</span>
+                <span>ELMS</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarNav" aria-controls="navbarNav"
@@ -71,25 +88,18 @@ $user = [
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a href="Dashboard.php" class="nav-link active">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="Profile.php" class="nav-link">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="LandingPage.php" class="nav-link">Logout</a>
-                    </li>
+                    <li class="nav-item"><a href="Dashboard.php" class="nav-link active">Home</a></li>
+                    <li class="nav-item"><a href="Profile.php" class="nav-link">Profile</a></li>
+                    <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
                 </ul>
             </div>
         </div>
     </nav>
-    <!-- end of navigation -->
 
     <div class="content" style="margin-top: 100px;">
         <!-- Welcome Section -->
         <div id="Welcome" class="text-center py-5">
-            <h1>Welcome, <span id="userName"><?php echo htmlspecialchars($user['name']); ?></span>!</h1>
+            <h1>Welcome, <span id="userName"><?php echo htmlspecialchars($user['name'] ?? 'Student'); ?></span>!</h1>
             <p>Manage your courses and keep track of your progress here.</p>
         </div>
 
@@ -99,7 +109,7 @@ $user = [
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Recent Activity</h5>
-                        <p class="card-text"><?php echo htmlspecialchars($user['recentActivity']); ?></p>
+                        <p class="card-text"><?php echo htmlspecialchars($user['recentActivity'] ?? 'No recent activity'); ?></p>
                         <a href="Course.php" class="btn btn-primary">Continue Learning</a>
                     </div>
                 </div>
@@ -108,7 +118,7 @@ $user = [
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Next Lesson</h5>
-                        <p class="card-text"><?php echo htmlspecialchars($user['nextLesson']); ?></p>
+                        <p class="card-text"><?php echo htmlspecialchars($user['nextLesson'] ?? 'All lessons completed'); ?></p>
                         <a href="#" class="btn btn-primary">Go to Lesson</a>
                     </div>
                 </div>
@@ -119,18 +129,17 @@ $user = [
         <div class="container my-5">
             <h2 class="text-center mb-4">My Courses</h2>
             <div class="row" id="courseList">
-                <!-- Course Cards -->
                 <?php foreach ($user['courses'] as $course) : ?>
                     <div class="col-md-4 mb-4">
                         <div class="card">
-                            <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top" alt="Course Image" height="236">
+                            <img src="<?php echo htmlspecialchars($course['image'] ?? 'images/placeholder.jpg'); ?>" class="card-img-top" alt="Course Image" height="236">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($course['title']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars($course['description']); ?></p>
                                 <div class="progress mb-3">
                                     <div class="progress-bar" role="progressbar" style="width: <?php echo $course['progress']; ?>%" aria-valuenow="<?php echo $course['progress']; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $course['progress']; ?>% Complete</div>
                                 </div>
-                                <a href="Course.php" class="btn btn-primary"><?php echo $course['progress'] === 0 ? 'Start' : 'Continue'; ?></a>
+                                <a href="Course.php" class="btn btn-primary"><?php echo $course['progress'] == 0 ? 'Start' : 'Continue'; ?></a>
                             </div>
                         </div>
                     </div>
@@ -142,7 +151,6 @@ $user = [
         <div class="container my-5">
             <h2 class="text-center mb-4">Announcement Board</h2>
             <ul class="list-group" id="announcementBoard">
-                <!-- Announcements -->
                 <?php foreach ($user['announcements'] as $announcement) : ?>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <?php echo htmlspecialchars($announcement['title']); ?>

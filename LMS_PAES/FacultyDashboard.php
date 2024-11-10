@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['announcementTitle'])) 
                         <a href="DashboardFaculty.php" class="nav-link active">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a href="Profile.php" class="nav-link">Profile</a>
+                        <a href="FacultyProfile.php" class="nav-link">Profile</a>
                     </li>
                     <li class="nav-item">
                         <a href="LandingPage.php" class="nav-link">Logout</a>

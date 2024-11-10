@@ -1,29 +1,92 @@
 <?php
-// Start a session to manage user data if needed
+// Start a session and include the database connection
 session_start();
 
-// Placeholder user data (you can replace this with data from a database)
-$user = [
-    'name' => 'User Name',
-    'email' => 'user@example.com',
-    'phone' => '(123) 456-7890',
-    'address' => '123 Main St, Bacoor, Cavite',
-    'bio' => 'This is a brief bio about the user. It provides background information, interests, and any other relevant details.',
-    'avatar' => 'img/user-avatar.jpg'
-];
+$host = 'localhost';
+$dbname = 'lms_database';
+$username = 'root';
+$password = 'pogi';
 
-// Handle form submission for profile update
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+// Verify the user is logged in and is a student
+$user_id = $_SESSION['user_id'] ?? null;
+$user_role = $_SESSION['role'] ?? null;
+
+if (!$user_id || $user_role !== 'student') {
+    header("Location: LandingPage.php"); // Redirect if not logged in or not a student
+    exit();
+}
+
+// Fetch user details from the users and student_details tables
+$stmt = $pdo->prepare("SELECT u.username AS name, u.email, sd.phone, sd.address, sd.bio, sd.avatar
+                       FROM users u
+                       LEFT JOIN student_details sd ON u.id = sd.student_id
+                       WHERE u.id = :user_id");
+$stmt->execute(['user_id' => $user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Set default avatar if none is present
+$user['avatar'] = $user['avatar'] ?? 'img/user-avatar.jpg';
+
+// Handle profile updates
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Sanitize and assign user data
     $user['name'] = htmlspecialchars($_POST['userName']);
     $user['email'] = htmlspecialchars($_POST['userEmail']);
     $user['phone'] = htmlspecialchars($_POST['userPhone']);
     $user['address'] = htmlspecialchars($_POST['userAddress']);
     $user['bio'] = htmlspecialchars($_POST['userBio']);
-    // Note: Profile picture handling should include proper file upload handling (not shown here)
+
+    // Handle file upload for avatar
+    if (isset($_FILES['userAvatar']) && $_FILES['userAvatar']['error'] === UPLOAD_ERR_OK) {
+        $avatarDir = 'img/avatars/';
+        $avatarPath = $avatarDir . basename($_FILES['userAvatar']['name']);
+        
+        if (move_uploaded_file($_FILES['userAvatar']['tmp_name'], $avatarPath)) {
+            $user['avatar'] = $avatarPath;
+        }
+    }
+
+    // Update the users table for name and email
+    $stmt = $pdo->prepare("UPDATE users SET username = :name, email = :email WHERE id = :user_id");
+    $stmt->execute([
+        'name' => $user['name'],
+        'email' => $user['email'],
+        'user_id' => $user_id
+    ]);
+
+    // Check if student details already exist
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM student_details WHERE student_id = :user_id");
+    $stmt->execute(['user_id' => $user_id]);
+    $exists = $stmt->fetchColumn();
+
+    if ($exists) {
+        // Update existing record in student_details
+        $stmt = $pdo->prepare("UPDATE student_details SET phone = :phone, address = :address, bio = :bio, avatar = :avatar WHERE student_id = :user_id");
+    } else {
+        // Insert new record into student_details
+        $stmt = $pdo->prepare("INSERT INTO student_details (student_id, phone, address, bio, avatar) VALUES (:user_id, :phone, :address, :bio, :avatar)");
+    }
+    
+    // Execute the insert or update
+    $stmt->execute([
+        'user_id' => $user_id,
+        'phone' => $user['phone'],
+        'address' => $user['address'],
+        'bio' => $user['bio'],
+        'avatar' => $user['avatar']
+    ]);
+
+    // Store updated data in session
     $_SESSION['user'] = $user;
-} elseif (isset($_SESSION['user'])) {
-    // Restore user data from session if available
-    $user = $_SESSION['user'];
+    header("Location: Profile.php"); // Refresh to show updated info
+    exit();
 }
 ?>
 
@@ -50,15 +113,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a href="Dashboard.php" class="nav-link">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="LandingPage.php" class="nav-link">Logout</a>
-                    </li>
+                    <li class="nav-item"><a href="Dashboard.php" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link active">Profile</a></li>
+                    <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -69,21 +126,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="row">
             <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" class="card-img-top rounded-circle mx-auto mt-4" alt="User Avatar" id="avatar" style="width: 150px; height: 150px;">
+                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" class="card-img-top rounded-circle mx-auto mt-4" alt="User Avatar" style="width: 150px; height: 150px;">
                     <div class="card-body text-center">
-                        <h5 class="card-title" id="userName"><?php echo htmlspecialchars($user['name']); ?></h5>
-                        <p class="card-text text-muted" id="userEmail"><?php echo htmlspecialchars($user['email']); ?></p>
+                        <h5 class="card-title"><?php echo htmlspecialchars($user['name']); ?></h5>
+                        <p class="card-text text-muted"><?php echo htmlspecialchars($user['email']); ?></p>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>
                     </div>
                 </div>
             </div>
             <div class="col-md-8">
                 <h3>Profile Details</h3>
-                <p class="lead" id="userBio"><?php echo htmlspecialchars($user['bio']); ?></p>
+                <p class="lead"><?php echo htmlspecialchars($user['bio']); ?></p>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><strong>Email:</strong> <span id="emailDetail"><?php echo htmlspecialchars($user['email']); ?></span></li>
-                    <li class="list-group-item"><strong>Phone:</strong> <span id="phoneDetail"><?php echo htmlspecialchars($user['phone']); ?></span></li>
-                    <li class="list-group-item"><strong>Address:</strong> <span id="addressDetail"><?php echo htmlspecialchars($user['address']); ?></span></li>
+                    <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></li>
+                    <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone']); ?></li>
+                    <li class="list-group-item"><strong>Address:</strong> <?php echo htmlspecialchars($user['address']); ?></li>
                 </ul>
             </div>
         </div>
@@ -135,6 +192,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/Script.js"></script>
 </body>
 </html>
