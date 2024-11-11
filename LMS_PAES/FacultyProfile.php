@@ -102,19 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-warning">
+    <nav class="navbar navbar-expand-lg navbar-light bg-warning shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="Dashboard.php">
-                <img src="Images/abeLogo.png" alt="PAES Logo" height="40">
-                PAES
+            <a class="navbar-brand" href="FacultyDashboard.php">
+                ELMS - Faculty
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="Dashboard.php" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link active">Profile</a></li>
+                    <li class="nav-item"><a href="FacultyDashboard.php" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="FacultyProfile.php" class="nav-link active">Profile</a></li>
                     <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
                 </ul>
             </div>
@@ -125,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-4">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm border-0">
                     <img src="<?php echo htmlspecialchars($user['avatar']); ?>" class="card-img-top rounded-circle mx-auto mt-4" alt="User Avatar" style="width: 150px; height: 150px;">
                     <div class="card-body text-center">
                         <h5 class="card-title"><?php echo htmlspecialchars($user['name']); ?></h5>
@@ -135,15 +134,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
             <div class="col-md-8">
-                <h3>Profile Details</h3>
-                <p class="lead"><?php echo htmlspecialchars($user['bio']); ?></p>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></li>
-                    <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone']); ?></li>
-                    <li class="list-group-item"><strong>Address:</strong> <?php echo htmlspecialchars($user['address']); ?></li>
-                    <li class="list-group-item"><strong>Department:</strong> <?php echo htmlspecialchars($user['department']); ?></li>
-                    <li class="list-group-item"><strong>Position:</strong> <?php echo htmlspecialchars($user['position']); ?></li>
-                </ul>
+                <div class="card border-0 shadow-sm p-4">
+                    <h3 class="card-title">Profile Details</h3>
+                    <p class="lead"><?php echo htmlspecialchars($user['bio']); ?></p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></li>
+                        <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone']); ?></li>
+                        <li class="list-group-item"><strong>Address:</strong> <?php echo htmlspecialchars($user['address']); ?></li>
+                        <li class="list-group-item"><strong>Department:</strong> <?php echo htmlspecialchars($user['department']); ?></li>
+                        <li class="list-group-item"><strong>Position:</strong> <?php echo htmlspecialchars($user['position']); ?></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -182,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="userAvatarInput" class="form-label">Profile Picture</label>
                             <input type="file" name="userAvatar" class="form-control" id="userAvatarInput">
                         </div>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="submit" class="btn btn-primary w-100">Save changes</button>
                     </form>
                 </div>
             </div>
