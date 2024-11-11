@@ -50,15 +50,18 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
             padding: 20px;
             border-radius: 10px;
         }
+
         .lesson-card {
             border: none;
             border-radius: 5px;
             margin-bottom: 15px;
             transition: box-shadow 0.2s ease;
         }
+
         .lesson-card:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
+
         .footer {
             background-color: #ffc107;
             color: #333;
@@ -102,7 +105,8 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h5>
                             <p class="card-text text-muted">Type: <?php echo htmlspecialchars($lesson['type']); ?></p>
-                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>" class="btn btn-primary">Start Lesson</a>
+                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>" class="btn btn-primary">Start
+                                Lesson</a>
                         </div>
                     </div>
                 </div>
