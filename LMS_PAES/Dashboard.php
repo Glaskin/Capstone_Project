@@ -23,49 +23,39 @@ if (!$user_id || $user_role !== 'student') {
     exit();
 }
 
-// Fetch user details based on the logged-in user
-$user = [];
-if ($user_id) {
-    // Fetch user profile
-    $stmt = $pdo->prepare("SELECT username AS name FROM users WHERE id = :user_id");
-    $stmt->execute(['user_id' => $user_id]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+// Fetch user profile details
+$stmt = $pdo->prepare("SELECT username AS name FROM users WHERE id = :user_id");
+$stmt->execute(['user_id' => $user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC) ?? ['name' => 'Student'];
 
-    // Fetch recent activity (last completed lesson)
-    $stmt = $pdo->prepare("SELECT lessons.title FROM lessons
-                           JOIN student_progress ON lessons.id = student_progress.lesson_id
-                           WHERE student_progress.student_id = :user_id AND student_progress.status = 'completed'
-                           ORDER BY student_progress.last_accessed DESC LIMIT 1");
-    $stmt->execute(['user_id' => $user_id]);
-    $user['recentActivity'] = $stmt->fetchColumn() ?: 'No recent activity';
+// Since student progress is not implemented, we'll set default values for recent activity and next lesson
+$user['recentActivity'] = 'No recent activity';
+$user['nextLesson'] = 'No upcoming lessons';
 
-    // Fetch next lesson
-    $stmt = $pdo->prepare("SELECT title FROM lessons
-                           WHERE course_id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
-                           AND id NOT IN (SELECT lesson_id FROM student_progress WHERE student_id = :user_id)
-                           ORDER BY id ASC LIMIT 1");
-    $stmt->execute(['user_id' => $user_id]);
-    $user['nextLesson'] = $stmt->fetchColumn() ?: 'All lessons completed';
+// Fetch enrolled courses without progress information
+$stmt = $pdo->prepare("
+    SELECT courses.id, courses.title, courses.description, courses.image 
+    FROM courses
+    WHERE courses.id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
+");
+$stmt->execute(['user_id' => $user_id]);
+$user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch enrolled courses with progress
-    $stmt = $pdo->prepare("SELECT courses.title, courses.description, courses.image, 
-                                  IFNULL(SUM(CASE WHEN student_progress.status = 'completed' THEN 1 ELSE 0 END) * 100 / COUNT(lessons.id), 0) AS progress
-                           FROM courses
-                           LEFT JOIN lessons ON courses.id = lessons.course_id
-                           LEFT JOIN student_progress ON lessons.id = student_progress.lesson_id AND student_progress.student_id = :user_id
-                           WHERE courses.id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
-                           GROUP BY courses.id");
-    $stmt->execute(['user_id' => $user_id]);
-    $user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Fetch announcements
-    $stmt = $pdo->query("SELECT title, date, type FROM announcements WHERE type = 'system' OR course_id IN (SELECT course_id FROM enrollments WHERE student_id = $user_id)");
-    $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+// Fetch system and course-specific announcements
+$stmt = $pdo->prepare("
+    SELECT title, date, type 
+    FROM announcements 
+    WHERE type = 'system' 
+    OR course_id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
+");
+$stmt->execute(['user_id' => $user_id]);
+$user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -74,6 +64,7 @@ if ($user_id) {
     <link rel="stylesheet" href="css/Dashboard.css" />
     <link rel="stylesheet" href="css/Style.css">
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-warning">
@@ -81,9 +72,8 @@ if ($user_id) {
             <a class="navbar-brand navbar-brand-logo" href="Dashboard.php">
                 <span>ELMS</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav" aria-controls="navbarNav"
-                aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -109,7 +99,8 @@ if ($user_id) {
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Recent Activity</h5>
-                        <p class="card-text"><?php echo htmlspecialchars($user['recentActivity'] ?? 'No recent activity'); ?></p>
+                        <p class="card-text">
+                            <?php echo htmlspecialchars($user['recentActivity'] ?? 'No recent activity'); ?></p>
                         <a href="Course.php" class="btn btn-primary">Continue Learning</a>
                     </div>
                 </div>
@@ -118,7 +109,8 @@ if ($user_id) {
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Next Lesson</h5>
-                        <p class="card-text"><?php echo htmlspecialchars($user['nextLesson'] ?? 'All lessons completed'); ?></p>
+                        <p class="card-text">
+                            <?php echo htmlspecialchars($user['nextLesson'] ?? 'All lessons completed'); ?></p>
                         <a href="#" class="btn btn-primary">Go to Lesson</a>
                     </div>
                 </div>
@@ -127,34 +119,36 @@ if ($user_id) {
 
         <!-- Courses Section -->
         <div class="container my-5">
-            <h2 class="text-center mb-4">My Courses</h2>
-            <div class="row" id="courseList">
-                <?php foreach ($user['courses'] as $course) : ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            <img src="<?php echo htmlspecialchars($course['image'] ?? 'images/placeholder.jpg'); ?>" class="card-img-top" alt="Course Image" height="236">
-                            <div class="card-body">
-                                <h5 class="card-title"><?php echo htmlspecialchars($course['title']); ?></h5>
-                                <p class="card-text"><?php echo htmlspecialchars($course['description']); ?></p>
-                                <div class="progress mb-3">
-                                    <div class="progress-bar" role="progressbar" style="width: <?php echo $course['progress']; ?>%" aria-valuenow="<?php echo $course['progress']; ?>" aria-valuemin="0" aria-valuemax="100"><?php echo $course['progress']; ?>% Complete</div>
-                                </div>
-                                <a href="Course.php" class="btn btn-primary"><?php echo $course['progress'] == 0 ? 'Start' : 'Continue'; ?></a>
-                            </div>
-                        </div>
+    <h2 class="text-center mb-4">My Courses</h2>
+    <div class="row" id="courseList">
+        <?php foreach ($user['courses'] as $course): ?>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
+                         alt="Course Image" height="236">
+                    <div class="card-body">
+                        <h5 class="card-title"><?php echo htmlspecialchars($course['title']); ?></h5>
+                        <p class="card-text"><?php echo htmlspecialchars($course['description']); ?></p>
+                        <!-- Link to Course.php with course_id parameter -->
+                        <a href="Course.php?course_id=<?php echo $course['id']; ?>" class="btn btn-primary">
+                            Start Course
+                        </a>
                     </div>
-                <?php endforeach; ?>
+                </div>
             </div>
-        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
 
         <!-- Announcement Board Section -->
         <div class="container my-5">
             <h2 class="text-center mb-4">Announcement Board</h2>
             <ul class="list-group" id="announcementBoard">
-                <?php foreach ($user['announcements'] as $announcement) : ?>
+                <?php foreach ($user['announcements'] as $announcement): ?>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <?php echo htmlspecialchars($announcement['title']); ?>
-                        <span class="badge bg-<?php echo htmlspecialchars($announcement['type']); ?> rounded-pill">Date: <?php echo htmlspecialchars($announcement['date']); ?></span>
+                        <span class="badge bg-<?php echo htmlspecialchars($announcement['type']); ?> rounded-pill">Date:
+                            <?php echo htmlspecialchars($announcement['date']); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -166,6 +160,8 @@ if ($user_id) {
         </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
 </body>
+
 </html>
