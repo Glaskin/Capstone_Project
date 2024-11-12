@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO lessons (module_id, title, content, type, position) 
                                VALUES (:module_id, :title, :content, 'lesson', 
                                (SELECT COALESCE(MAX(position), 0) + 1 FROM lessons WHERE module_id = :module_id))");
-        $stmt->execute(['module_id' => $module_id, 'title' => $lessonTitle, 'content' => $lessonContent]);
+        $stmt->execute(['module_id' => $module_id, 'title' => $title, 'content' => $content]);
 
         header("Location: ManageModule.php?module_id=$module_id"); // Refresh to show the new lesson
         exit();
