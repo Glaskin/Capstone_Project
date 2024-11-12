@@ -49,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $moduleTitle = htmlspecialchars($_POST['moduleTitle']);
         $modulePosition = htmlspecialchars($_POST['modulePosition']);
         
-        $stmt = $pdo->prepare("INSERT INTO modules (course_id, title, description) VALUES (:course_id, :title, :description)");
-        $stmt->execute(['course_id' => $course_id, 'title' => $title, 'position' => $description]);
+        $stmt = $pdo->prepare("INSERT INTO modules (course_id, title, position) VALUES (:course_id, :title, :position)");
+        $stmt->execute(['course_id' => $course_id, 'title' => $moduleTitle, 'position' => $modulePosition]);
         
         header("Location: ManageCourse.php?course_id=" . $course_id); // Refresh to show the new module
         exit();
