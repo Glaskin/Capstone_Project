@@ -4,12 +4,17 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    height: 100vh;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
 
 .quiz-container {
     background-color: #fff;
