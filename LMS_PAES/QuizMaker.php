@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </nav>
 
-<div class="container">
+<div class="container mt-5">
     <h1>Quiz Maker</h1>
     <form method="POST">
         <label for="quiz_title">Quiz Title:</label>
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 
-<footer class="bg-warning text-center py-3 mt-5">
+<footer class=" footer bg-warning text-center py-3 mt-5">
     <p>&copy; 2024 LMS. All rights reserved.</p>
 </footer>
 

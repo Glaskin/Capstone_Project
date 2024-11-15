@@ -5,7 +5,7 @@ session_start();
 $host = 'localhost';
 $dbname = 'lms_database';
 $username = 'root';
-$password = 'pogi';
+$password = 'pass';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -142,11 +142,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <!-- Footer -->
+        
+    </div>
+    <!-- Footer -->
         <footer class="bg-warning text-center py-3 mt-5">
             <p>&copy; 2024 LMS. All rights reserved.</p>
         </footer>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

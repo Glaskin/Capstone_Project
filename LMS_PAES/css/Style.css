@@ -6,10 +6,18 @@ body {
   }
 
   .content{
+    margin-top: 50px;
     flex: 1;
   }
   
   footer {
     margin-top: 20px;
-    
+    background-color: #f39c12;
+    color: #fff;
+    font-size: 1rem;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
   }

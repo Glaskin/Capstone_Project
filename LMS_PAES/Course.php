@@ -5,7 +5,7 @@ session_start();
 $host = 'localhost';
 $dbname = 'lms_database';
 $username = 'root';
-$password = 'pogi';
+$password = 'pass';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -42,6 +42,8 @@ $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/Style.css">
+    <link rel="stylesheet" href="css/Dashboard.css">
 </head>
 
 <body>

@@ -5,7 +5,7 @@ session_start();
 $host = 'localhost';
 $dbname = 'lms_database';
 $username = 'root';
-$password = 'pogi';
+$password = 'pass';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -43,6 +43,7 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/Style.css">
     <style>
         .module-card {
             background-color: #f7f7f9;
@@ -66,6 +67,15 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: #ffc107;
             color: #333;
             padding: 15px;
+            margin-top: 20px;
+            background-color: #f39c12;
+            color: #fff;
+            font-size: 1rem;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
         }
     </style>
 </head>

@@ -3,7 +3,7 @@
 $host = 'localhost';
 $dbname = 'lms_database';
 $username = 'root';
-$password = 'pogi';
+$password = 'pass';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
