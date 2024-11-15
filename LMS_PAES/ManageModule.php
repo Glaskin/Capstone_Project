@@ -58,10 +58,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Handle form submission for adding a new quiz
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['addQuiz'])) {
+        $quizTitle = $_POST['quizTitle'] ?? null;
+        $quizDescription = $_POST['quizDescription'] ?? null;
+
+        if ($quizTitle) {
+            $stmt = $pdo->prepare("INSERT INTO quizzes (module_id, title, description) VALUES (:module_id, :title, :description)");
+            $stmt->execute([
+                'module_id' => $module_id,
+                'title' => $quizTitle,
+                'description' => $quizDescription
+            ]);
+            echo "Quiz added successfully!";
+        } else {
+            echo "Quiz title is required.";
+        }
+    }
+
+    // Handle deletion of a quiz
+    if (isset($_POST['deleteQuiz'])) {
+        $quizId = $_POST['quizId'] ?? null;
+
+        if ($quizId && is_numeric($quizId)) {
+            $stmt = $pdo->prepare("DELETE FROM quizzes WHERE id = :id");
+            $stmt->execute(['id' => $quizId]);
+            echo "Quiz deleted successfully!";
+        } else {
+            echo "Valid Quiz ID is required.";
+        }
+    }
+}
+
+
 // Fetch lessons strictly associated with this specific module
 $stmt = $pdo->prepare("SELECT id, title, content, type FROM lessons WHERE module_id = :module_id ORDER BY position ASC");
 $stmt->execute(['module_id' => $module_id]);
 $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch quizzes for the specified module
+$stmt = $pdo->prepare("SELECT * FROM quizzes WHERE module_id = :module_id");
+$stmt->execute(['module_id' => $module_id]);
+$quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 
@@ -147,8 +186,57 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        
+        <!-- Quizzes List -->
+<h2 class="text-center mb-4">Quizzes</h2>
+<div class="list-group mb-5">
+    <?php
+    // Fetch quizzes for the current module
+    $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE module_id = :module_id");
+    $stmt->execute(['module_id' => $module_id]);
+    $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!empty($quizzes)) {
+        foreach ($quizzes as $quiz): ?>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span>
+                    <?php echo htmlspecialchars($quiz['title']); ?>
+                </span>
+                <div>
+                    <a href="QuizMaker.php?quiz_id=<?php echo htmlspecialchars($quiz['id']); ?>&module_id=<?php echo htmlspecialchars($module_id); ?>" 
+                       class="btn btn-primary btn-sm">
+                        Edit <?php echo htmlspecialchars($quiz['title']); ?>
+                    </a>
+                    <form method="POST" action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>" style="display: inline;">
+                        <input type="hidden" name="quiz_id" value="<?php echo htmlspecialchars($quiz['id']); ?>">
+                        <button type="submit" name="deleteQuiz" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+    <?php endforeach; 
+    } else {
+        echo '<p class="text-muted">No quizzes available for this module.</p>';
+    }
+    ?>
+</div>
+
+<!-- Add Quiz Section -->
+<h2 class="text-center mb-4">Add New Quiz</h2>
+<div class="card mb-5">
+    <div class="card-body">
+        <form method="POST" action="ManageModule.php?module_id=<?php echo $module_id; ?>">
+            <div class="mb-3">
+                <label for="quizTitle" class="form-label">Quiz Title</label>
+                <input type="text" class="form-control" id="quizTitle" name="quizTitle" required>
+            </div>
+            <button type="submit" name="addQuiz" class="btn btn-success">Add Quiz</button>
+        </form>
     </div>
+</div>
+
+    
+
+
+
     <!-- Footer -->
         <footer class="bg-warning text-center py-3 mt-5">
             <p>&copy; 2024 LMS. All rights reserved.</p>
