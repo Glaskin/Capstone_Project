@@ -37,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Insert new lesson associated with the current module_id
         $stmt = $pdo->prepare("INSERT INTO lessons (module_id, title, content, type, position) 
-                               VALUES (:module_id, :title, :content, 'lesson', 
-                               (SELECT COALESCE(MAX(position), 0) + 1 FROM lessons WHERE module_id = :module_id))");
-        $stmt->execute(['module_id' => $module_id, 'title' => $title, 'content' => $content]);
+        VALUES (:module_id, :lessonTitle, :lessonContent, 'lesson', 
+        (SELECT COALESCE(MAX(position), 0) + 1 FROM (SELECT position FROM lessons WHERE module_id = :module_id) AS temp))");
+$stmt->execute(['module_id' => $module_id, 'lessonTitle' => $lessonTitle, 'lessonContent' => $lessonContent]);
 
         header("Location: ManageModule.php?module_id=$module_id"); // Refresh to show the new lesson
         exit();
@@ -58,49 +58,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle form submission for adding a new quiz
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['addQuiz'])) {
-        $quizTitle = $_POST['quizTitle'] ?? null;
-        $quizDescription = $_POST['quizDescription'] ?? null;
+// Initialize variables
+$module_id = isset($_GET['module_id']) ? $_GET['module_id'] : null;
+$quizzes = [];
 
-        if ($quizTitle) {
-            $stmt = $pdo->prepare("INSERT INTO quizzes (module_id, title, description) VALUES (:module_id, :title, :description)");
-            $stmt->execute([
-                'module_id' => $module_id,
-                'title' => $quizTitle,
-                'description' => $quizDescription
-            ]);
-            echo "Quiz added successfully!";
-        } else {
-            echo "Quiz title is required.";
-        }
-    }
-
-    // Handle deletion of a quiz
-    if (isset($_POST['deleteQuiz'])) {
-        $quizId = $_POST['quizId'] ?? null;
-
-        if ($quizId && is_numeric($quizId)) {
-            $stmt = $pdo->prepare("DELETE FROM quizzes WHERE id = :id");
-            $stmt->execute(['id' => $quizId]);
-            echo "Quiz deleted successfully!";
-        } else {
-            echo "Valid Quiz ID is required.";
-        }
-    }
+// Fetch quizzes from the database
+if ($module_id) {
+    $stmt = $pdo->prepare("SELECT * FROM Quizzes WHERE module_id = ?");
+    $stmt->execute([$module_id]);
+    $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// Handle adding a new quiz
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addQuiz'])) {
+    $quizTitle = $_POST['quizTitle'];
+    $stmt = $pdo->prepare("INSERT INTO Quizzes (title, module_id) VALUES (?, ?)");
+    $stmt->execute([$quizTitle, $module_id]);
+    $_SESSION['message'] = "Quiz '$quizTitle' added successfully!";
+    header("Location: ManageModule.php?module_id=$module_id");
+    exit();
+}
+
+// Handle deleting a quiz
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteQuiz'])) {
+    $quiz_id = $_POST['quiz_id'];
+    $stmt = $pdo->prepare("DELETE FROM Quizzes WHERE quiz_id = ?");
+    $stmt->execute([$quiz_id]);
+    $_SESSION['message'] = "Quiz deleted successfully!";
+    header("Location: ManageModule.php?module_id=$module_id");
+    exit();
+}
 
 // Fetch lessons strictly associated with this specific module
 $stmt = $pdo->prepare("SELECT id, title, content, type FROM lessons WHERE module_id = :module_id ORDER BY position ASC");
 $stmt->execute(['module_id' => $module_id]);
 $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch quizzes for the specified module
-$stmt = $pdo->prepare("SELECT * FROM quizzes WHERE module_id = :module_id");
-$stmt->execute(['module_id' => $module_id]);
-$quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 
@@ -186,50 +179,53 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- Quizzes List -->
-<h2 class="text-center mb-4">Quizzes</h2>
-<div class="list-group mb-5">
-    <?php
-    // Fetch quizzes for the current module
-    $stmt = $pdo->prepare("SELECT * FROM quizzes WHERE module_id = :module_id");
-    $stmt->execute(['module_id' => $module_id]);
-    $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!empty($quizzes)) {
-        foreach ($quizzes as $quiz): ?>
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <span>
-                    <?php echo htmlspecialchars($quiz['title']); ?>
-                </span>
-                <div>
-                    <a href="QuizMaker.php?quiz_id=<?php echo htmlspecialchars($quiz['id']); ?>&module_id=<?php echo htmlspecialchars($module_id); ?>" 
-                       class="btn btn-primary btn-sm">
-                        Edit <?php echo htmlspecialchars($quiz['title']); ?>
-                    </a>
-                    <form method="POST" action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>" style="display: inline;">
-                        <input type="hidden" name="quiz_id" value="<?php echo htmlspecialchars($quiz['id']); ?>">
-                        <button type="submit" name="deleteQuiz" class="btn btn-danger btn-sm">Delete</button>
-                    </form>
+        <div class="container">
+    <!-- Quizzes List -->
+    <h2 class="text-center mb-4">Quizzes</h2>
+    <div class="list-group mb-5">
+        <?php if (!empty($quizzes)): ?>
+            <?php foreach ($quizzes as $quiz): ?>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <?php echo htmlspecialchars($quiz['title']); ?>
+                    </span>
+                    <div>
+                        <a href="QuizMaker.php?quiz_id=<?php echo htmlspecialchars($quiz['quiz_id']); ?>&module_id=<?php echo htmlspecialchars($module_id); ?>" 
+                           class="btn btn-primary btn-sm">
+                            Manage <?php echo htmlspecialchars($quiz['title']); ?>
+                        </a>
+                        <form method="POST" action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>" style="display: inline;">
+                            <input type="hidden" name="quiz_id" value="<?php echo htmlspecialchars($quiz['quiz_id']); ?>">
+                            <button type="submit" name="deleteQuiz" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-    <?php endforeach; 
-    } else {
-        echo '<p class="text-muted">No quizzes available for this module.</p>';
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-muted">No quizzes available for this module.</p>
+        <?php endif; ?>
+    </div>
+
+    <?php
+    // Display success message if set
+    if (isset($_SESSION['message'])) {
+        echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['message']) . '</div>';
+        unset($_SESSION['message']); // Clear the message after displaying
     }
     ?>
-</div>
 
-<!-- Add Quiz Section -->
-<h2 class="text-center mb-4">Add New Quiz</h2>
-<div class="card mb-5">
-    <div class="card-body">
-        <form method="POST" action="ManageModule.php?module_id=<?php echo $module_id; ?>">
-            <div class="mb-3">
-                <label for="quizTitle" class="form-label">Quiz Title</label>
-                <input type="text" class="form-control" id="quizTitle" name="quizTitle" required>
-            </div>
-            <button type="submit" name="addQuiz" class="btn btn-success">Add Quiz</button>
-        </form>
+    <!-- Add Quiz Section -->
+    <h2 class="text-center mb-4">Add New Quiz</h2>
+    <div class="card mb-5">
+        <div class="card-body">
+            <form method="POST" action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>">
+                <div class="mb-3">
+                    <label for="quizTitle" class="form-label">Quiz Title</label>
+                    <input type="text" class="form-control" id="quizTitle" name="quizTitle" required>
+                </div>
+                <button type="submit" name="addQuiz" class="btn btn -success">Add Quiz</button>
+            </form>
+        </div>
     </div>
 </div>
 
