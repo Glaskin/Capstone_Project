@@ -1,7 +1,68 @@
 <?php
 session_start();
+$host = 'localhost';
+$dbname = 'lms_database';
+$username = 'root';
+$password = 'pass';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+// Fetch the quiz ID and module ID from the URL
+$quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
+$module_id = isset($_GET['module_id']) ? intval($_GET['module_id']) : 0; // Get module ID
+
+// Initialize variables
+$quizTitle = '';
+$questions = [];
+$score = null;
+$submittedAnswers = [];
+$correctAnswers = [];
+
+// Fetch quiz title and questions
+if ($quiz_id > 0) {
+    // Fetch quiz title
+    $quizQuery = $pdo->prepare("SELECT title FROM Quizzes WHERE quiz_id = :quiz_id");
+    $quizQuery->execute(['quiz_id' => $quiz_id]);
+    $quizTitle = $quizQuery->fetchColumn();
+
+    // Fetch questions for the quiz
+    $questionsQuery = $pdo->prepare("SELECT question_id, question_text FROM Questions WHERE quiz_id = :quiz_id");
+    $questionsQuery->execute(['quiz_id' => $quiz_id]);
+    $questions = $questionsQuery->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $submittedAnswers = $_POST['answers'];
+    $score = 0;
+
+    foreach ($submittedAnswers as $question_id => $answer) {
+        // Check if the submitted answer is correct
+        $answerQuery = $pdo->prepare("SELECT is_correct FROM Answers WHERE question_id = :question_id AND answer_text = :answer");
+        $answerQuery->execute(['question_id' => $question_id, 'answer' => $answer]);
+        $is_correct = $answerQuery->fetchColumn();
+
+        if ($is_correct) {
+            $score++;
+        }
+    }
+
+    // Fetch correct answers for highlighting after submission
+    if ($quiz_id > 0) {
+        $correctAnswersQuery = $pdo->prepare("SELECT question_id, answer_text FROM Answers WHERE is_correct = TRUE AND question_id IN (SELECT question_id FROM Questions WHERE quiz_id = :quiz_id)");
+        $correctAnswersQuery->execute(['quiz_id' => $quiz_id]);
+        $correctAnswers = $correctAnswersQuery->fetchAll(PDO::FETCH_KEY_PAIR);
+    }
+}
+
 ?>
 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,21 +102,47 @@ session_start();
 
 
 <!-- Main Content -->
-<div class="container mt-5 pt-5">
-    <h1>Take a Quiz</h1>
-
-    <?php if (isset($noQuizMessage)): ?>
-        <p class="text-muted"><?php echo $noQuizMessage; ?></p>
+<div class="container mt-5">
+<div class="d-flex justify-content-between align-items-center">
+        <h1><?php echo htmlspecialchars($quizTitle); ?></h1>
+        <a href="Module.php?module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Back to Module</a> <!-- Back to specific module -->
+    </div>
+    <?php if ($score !== null): ?>
+        <h3>Your Score: <?php echo $score; ?> / <?php echo count($questions); ?></h3>
+        <a href="Quiz.php?quiz_id=<?php echo $quiz_id; ?>" class="btn btn-secondary">Retake Quiz</a>
+        
+        <h4>Correct Answers:</h4>
+        <ul>
+            <?php foreach ($questions as $question): ?>
+                <li>
+                    <strong><?php echo htmlspecialchars($question['question_text']); ?></strong><br>
+                    <?php if (isset($correctAnswers[$question['question_id']])): ?>
+                        <span class="text-success">Correct Answer: <?php echo htmlspecialchars($correctAnswers[$question['question_id']]); ?></span>
+                    <?php else: ?>
+                        <span class="text-danger">No Correct Answer Found</span>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
     <?php else: ?>
-        <form action="SubmitQuiz.php" method="POST">
-            <?php foreach ($quizzes as $quizTitle => $questions): ?>
-                <h2><?php echo htmlspecialchars($quizTitle); ?></h2>
-                <?php foreach ($questions as $index => $question): ?>
-                    <div class="mb-3">
-                        <label><strong>Question <?php echo $index + 1; ?>:</strong> <?php echo htmlspecialchars($question); ?></label>
-                        <input type="text" class="form-control" name="answers[<?php echo htmlspecialchars($quizTitle); ?>][<?php echo $index; ?>]" required>
-                    </div>
-                <?php endforeach; ?>
+        <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>" method="POST">
+            <?php foreach ($questions as $question): ?>
+                <div class="mb-3">
+                    <label><strong><?php echo htmlspecialchars($question['question_text']); ?></strong></label><br>
+                    <?php
+                    // Fetch answers for the current question
+                    $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
+                    $answersQuery->execute(['question_id' => $question['question_id']]);
+                    $answers = $answersQuery->fetchAll(PDO::FETCH_ASSOC);
+                    foreach ($answers as $answer): ?>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
+                            <label class="form-check-label">
+                                <?php echo htmlspecialchars($answer['answer_text']); ?>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             <?php endforeach; ?>
             <button type="submit" class="btn btn-primary">Submit Answers</button>
         </form>

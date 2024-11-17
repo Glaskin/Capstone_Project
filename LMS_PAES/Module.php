@@ -21,7 +21,7 @@ if (!$module_id) {
 }
 
 // Fetch module details
-$stmt = $pdo->prepare("SELECT title FROM modules WHERE id = :module_id");
+$stmt = $pdo->prepare("SELECT title FROM modules WHERE id = :module_id"); // Use 'id' as the primary key
 $stmt->execute(['module_id' => $module_id]);
 $module = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -33,11 +33,15 @@ if (!$module) {
 $stmt = $pdo->prepare("SELECT id, title, type FROM lessons WHERE module_id = :module_id ORDER BY position ASC");
 $stmt->execute(['module_id' => $module_id]);
 $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch quizzes associated with this module (title only)
+$stmt = $pdo->prepare("SELECT quiz_id, title FROM quizzes WHERE module_id = :module_id ORDER BY quiz_id ASC");
+$stmt->execute(['module_id' => $module_id]);
+$quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!doctype html>
 <html lang="en">
-
 <head>
     <title><?php echo htmlspecialchars($module['title']); ?> - Module</title>
     <meta charset="utf-8" />
@@ -45,47 +49,16 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/Style.css">
     <style>
-        .module-card {
-            background-color: #f7f7f9;
-            border: 1px solid #e0e0e0;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .lesson-card {
-            border: none;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            transition: box-shadow 0.2s ease;
-        }
-
-        .lesson-card:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .footer {
-            background-color: #ffc107;
-            color: #333;
-            padding: 15px;
-            margin-top: 20px;
-            background-color: #f39c12;
-            color: #fff;
-            font-size: 1rem;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-        }
+        /* Your styles here */
     </style>
 </head>
-
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
         <div class="container">
             <a class="navbar-brand" href="Dashboard.php">ELMS</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data ```php
+            .bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -104,7 +77,7 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- Module Title Section -->
         <div class="module-card text-center mb-5 p-4">
             <h2 class="mb-3"><?php echo htmlspecialchars($module['title']); ?></h2>
-            <p class="text-muted">Explore the lessons within this module to deepen your knowledge.</p>
+            <p class="text-muted">Explore the lessons and quizzes within this module to deepen your knowledge.</p>
         </div>
 
         <!-- Lessons List -->
@@ -115,8 +88,21 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h5>
                             <p class="card-text text-muted">Type: <?php echo htmlspecialchars($lesson['type']); ?></p>
-                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>" class="btn btn-primary">Start
-                                Lesson</a>
+                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>" class="btn btn-primary">Start Lesson</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Quizzes List -->
+        <div class="row">
+            <?php foreach ($quizzes as $quiz): ?>
+                <div class="col-md-6 mb-4">
+                    <div class="card quiz-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><?php echo htmlspecialchars($quiz['title']); ?></h5>
+                            <a href="Quiz.php?quiz_id=<?php echo $quiz['quiz_id']; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-success">Start Quiz</a>
                         </div>
                     </div>
                 </div>
@@ -130,5 +116,4 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
