@@ -14,24 +14,24 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Ensure only faculty can access this page
+// Ensure only faculty and admin can access this page
 $user_id = $_SESSION['user_id'] ?? null;
 $user_role = $_SESSION['role'] ?? null;
 
-if (!$user_id || $user_role !== 'faculty') {
-    header("Location: LandingPage.php"); // Redirect if not logged in or not a faculty member
+if (!$user_id || !in_array($user_role, ['faculty', 'admin'])) {
+    header("Location: LandingPage.php"); // Redirect if not logged in or not a faculty or admin member
     exit();
 }
-
-// Get course ID from URL
-$course_id = $_GET['course_id'] ?? null;
-if (!$course_id) {
+// Retrieve the course ID from the URL
+if (!isset($_GET['courseId'])) {
     die("Course ID is required.");
 }
 
+$courseId = $_GET['courseId']; // Correctly assigning the course ID from the URL
+
 // Fetch course details
 $stmt = $pdo->prepare("SELECT title, description FROM courses WHERE id = :course_id");
-$stmt->execute(['course_id' => $course_id]);
+$stmt->execute(['course_id' => $courseId]); // Use $courseId here
 $course = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$course) {
@@ -40,7 +40,7 @@ if (!$course) {
 
 // Fetch modules for this course
 $stmt = $pdo->prepare("SELECT id, title, position FROM modules WHERE course_id = :course_id ORDER BY position ASC");
-$stmt->execute(['course_id' => $course_id]);
+$stmt->execute(['course_id' => $courseId]); // Use $courseId here
 $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submissions for adding or deleting modules
