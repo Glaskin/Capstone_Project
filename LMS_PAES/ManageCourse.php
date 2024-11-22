@@ -19,19 +19,20 @@ $user_id = $_SESSION['user_id'] ?? null;
 $user_role = $_SESSION['role'] ?? null;
 
 if (!$user_id || !in_array($user_role, ['faculty', 'admin'])) {
-    header("Location: LandingPage.php"); // Redirect if not logged in or not a faculty or admin member
+    var_dump($user_id, $user_role); // Debugging line
+    header("Location: LandingPage.php");
     exit();
 }
 // Retrieve the course ID from the URL
-if (!isset($_GET['courseId'])) {
+if (!isset($_GET['course_id'])) { // Ensure this matches the URL parameter
     die("Course ID is required.");
 }
 
-$courseId = $_GET['courseId']; // Correctly assigning the course ID from the URL
+$course_id = $_GET['course_id']; // Correctly assigning the course ID from the URL
 
-// Fetch course details
+// Fetch course details using the correct variable name
 $stmt = $pdo->prepare("SELECT title, description FROM courses WHERE id = :course_id");
-$stmt->execute(['course_id' => $courseId]); // Use $courseId here
+$stmt->execute(['course_id' => $course_id]); // Use $course_id here
 $course = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$course) {
@@ -40,7 +41,7 @@ if (!$course) {
 
 // Fetch modules for this course
 $stmt = $pdo->prepare("SELECT id, title, position FROM modules WHERE course_id = :course_id ORDER BY position ASC");
-$stmt->execute(['course_id' => $courseId]); // Use $courseId here
+$stmt->execute(['course_id' => $course_id]); // Use $courseId here
 $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle form submissions for adding or deleting modules
