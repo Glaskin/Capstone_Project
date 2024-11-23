@@ -154,12 +154,12 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </ul>
         </div>
 
-        <!-- Footer -->
+        
+    </div>
+<!-- Footer -->
         <footer class="bg-warning text-center py-3 mt-5">
             <p>&copy; 2024 LMS. All rights reserved.</p>
         </footer>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
 </body>

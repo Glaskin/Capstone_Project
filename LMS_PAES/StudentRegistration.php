@@ -30,21 +30,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($password !== $confirmPassword) {
         $error_message = "Passwords do not match.";
     } else {
-        // Check if email already exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
+        // Check if email or username already exists
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email OR username = :username");
         $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':username', $name);
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
-            $error_message = "Email is already registered.";
+            $error_message = "Email or username is already registered.";
         } else {
-            // Insert new student into users table without hashing password
+            // Insert new student into users table
             $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role) VALUES (:name, :password, :email, 'student')");
             $stmt->bindParam(':name', $name);
             $stmt->bindParam(':password', $password);  // Store plaintext password for testing
             $stmt->bindParam(':email', $email);
 
             if ($stmt->execute()) {
+                // Get the last inserted user ID
+                $userId = $pdo->lastInsertId();
+
+                // Fetch all available courses
+                $coursesStmt = $pdo->prepare("SELECT id FROM courses");
+                $coursesStmt->execute();
+                $courses = $coursesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Prepare to insert enrollments
+$enrollmentStmt = $pdo->prepare("INSERT INTO enrollments (student_id, course_id) VALUES (:student_id, :course_id)");
+
+// Enroll the user in each course
+foreach ($courses as $course) {
+    $courseId = $course['id'];
+    $enrollmentStmt->bindParam(':student_id', $userId); // Correctly bind the user ID
+    $enrollmentStmt->bindParam(':course_id', $courseId);
+    
+    // Execute the enrollment for the current course
+    $enrollmentStmt->execute();
+}
                 // Redirect to login or dashboard
                 header("Location: LandingPage.php");
                 exit();
@@ -55,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-
 
 <!doctype html>
 <html lang="en">

@@ -15,38 +15,61 @@ try {
 }
 
 // Handle form submissions
-$activeTab = 'users'; // Default active tab
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['addUser  '])) {
-        // User Management logic...
-        $activeTab = 'users'; // Set active tab to users
-    } elseif (isset($_POST['editUser  '])) {
-        // Edit User logic...
-        $activeTab = 'users'; // Set active tab to users
-    } elseif (isset($_POST['deleteUser  '])) {
-        // Delete User logic...
-        $activeTab = 'users'; // Set active tab to users
+    if (isset($_POST['addUser'])) {
+        // Add User logic
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $role = $_POST['role'];
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (:username, :email, :password, :role)");
+        $stmt->execute(['username' => $username, 'email' => $email, 'password' => $password, 'role' => $role]);
+        $activeTab = 'users';
+    } elseif (isset($_POST['editUser'])) {
+        // Edit User logic
+        $userId = $_POST['userId'];
+        $newUsername = $_POST['editUsername'];
+        $newEmail = $_POST['editEmail'];
+        $stmt = $pdo->prepare("UPDATE users SET username = :username, email = :email WHERE id = :id");
+        $stmt->execute(['username' => $newUsername, 'email' => $newEmail, 'id' => $userId]);
+        $activeTab = 'users';
+    } elseif (isset($_POST['deleteUser'])) {
+        $userId = $_POST['userId'];
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->execute(['id' => $userId]);
+        $activeTab = 'users';
     } elseif (isset($_POST['addCourse'])) {
-        // Course Management logic...
-        $activeTab = 'courses'; // Set active tab to courses
+        // Add Course logic
+        $courseName = $_POST['courseName'];
+        $courseDescription = $_POST['courseDescription'];
+        $stmt = $pdo->prepare("INSERT INTO courses (title, description) VALUES (:title, :description)");
+        $stmt->execute(['title' => $courseName, 'description' => $courseDescription]);
+        $activeTab = 'courses';
     } elseif (isset($_POST['editCourse'])) {
         // Edit Course logic
         $courseId = $_POST['courseId'];
         $courseName = $_POST['editCourseName'];
         $courseDescription = $_POST['editCourseDescription'];
-
         $stmt = $pdo->prepare("UPDATE courses SET title = :title, description = :description WHERE id = :id");
         $stmt->execute(['title' => $courseName, 'description' => $courseDescription, 'id' => $courseId]);
-        $activeTab = 'courses'; // Set active tab to courses
+        $activeTab = 'courses';
     } elseif (isset($_POST['deleteCourse'])) {
-        // Delete Course logic...
-        $activeTab = 'courses'; // Set active tab to 'courses';
+        $courseId = $_POST['courseId'];
+        $stmt = $pdo->prepare("DELETE FROM courses WHERE id = :id");
+        $stmt->execute(['id' => $courseId]);
+        $activeTab = 'courses';
     } elseif (isset($_POST['addAnnouncement'])) {
-        // Announcement Management logic...
-        $activeTab = 'announcements'; // Set active tab to announcements
+        // Add Announcement logic
+        $announcementTitle = $_POST['announcementTitle'];
+        $announcementContent = $_POST['announcementContent'];
+        $stmt = $pdo->prepare("INSERT INTO announcements (title, content) VALUES (:title, :content)");
+        $stmt->execute(['title' => $announcementTitle, 'content' => $announcementContent]);
+        $activeTab = 'announcement';
     } elseif (isset($_POST['deleteAnnouncement'])) {
-        // Delete Announcement logic...
-        $activeTab = 'announcements'; // Set active tab to announcements
+        $announcementId = $_POST['announcementId'];
+        $stmt = $pdo->prepare("DELETE FROM announcements WHERE id = :id");
+        $stmt->execute(['id' => $announcementId]);
+        $activeTab = 'announcement';
     }
 }
 
@@ -126,8 +149,8 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                                         <input type="email" name="editEmail" placeholder="New Email"
                                             class="form-control mb-2"
                                             value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                                        <button type="submit" name="editUser " class="btn btn-warning btn-sm">Save</button>
-                                        <button type="submit" name="deleteUser "
+                                        <button type="submit" name="editUser" class="btn btn-warning btn-sm">Save</button>
+                                        <button type="submit" name="deleteUser"
                                             class="btn btn-danger btn-sm">Delete</button>
                                     </form>
                                 </td>
@@ -173,7 +196,7 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
         <button type="submit" name="editCourse" class="btn btn-warning btn-sm">Save</button>
         <button type="submit" name="deleteCourse" class="btn btn-danger btn-sm">Delete</button>
     </form>
-    <a href="ManageCourse.php?courseId=<?php echo $course['id']; ?>" class="btn btn-info btn-sm">Edit Content</a>
+    <a href="ManageCourse.php?course_id=<?php echo $course['id']; ?>" class="btn btn-info btn-sm">Edit Content</a>
 </td>
                         
                 </tr>
