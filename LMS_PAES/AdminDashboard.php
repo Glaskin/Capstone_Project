@@ -121,7 +121,7 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                         <option value="faculty">Faculty</option>
                         <option value="admin">Admin</option>
                     </select>
-                    <button type="submit" name="addUser " class="btn btn-success">Add User</button>
+                    <button type="submit" name="addUser" class="btn btn-success">Add User</button>
                 </form>
                 <table class="table table-bordered table-dark table-striped">
                     <thead>

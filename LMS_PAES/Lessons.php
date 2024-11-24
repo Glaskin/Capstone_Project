@@ -94,9 +94,7 @@ $module = $stmt->fetch(PDO::FETCH_ASSOC);
                 <p class="card-text"><?php echo nl2br(htmlspecialchars($content['content'])); ?></p>
                 <?php if (!empty($content['media_url'])): ?>
                     <div class="mt-4">
-                        <a href="<?php echo htmlspecialchars($content['media_url']); ?>" target="_blank" class="btn btn-primary">
-                            View Related Media
-                        </a>
+                        
                     </div>
                 <?php endif; ?>
             </div>

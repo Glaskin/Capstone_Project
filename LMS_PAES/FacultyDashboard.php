@@ -33,13 +33,9 @@ if (!$faculty) {
 }
 
 // Fetch courses managed by this faculty member
-$stmt = $pdo->prepare("
-    SELECT c.id, c.title, c.description 
-    FROM courses c
-    JOIN faculty_courses fc ON c.id = fc.course_id
-    WHERE fc.faculty_id = :faculty_id
-");
-$stmt->execute(['faculty_id' => $user_id]);
+// Fetch all courses available in the system
+$stmt = $pdo->prepare("SELECT id, title, description FROM courses");
+$stmt->execute();
 $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
