@@ -1,4 +1,11 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'includes/PHPMailer/src/Exception.php';
+require 'includes/PHPMailer/src/PHPMailer.php';
+require 'includes/PHPMailer/src/SMTP.php';
+
 // Database connection setup
 $host = 'localhost';
 $dbname = 'lms_database';
@@ -22,59 +29,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['studentPassword'];
     $confirmPassword = $_POST['confirmPassword'];
 
-    // Validate form inputs
-    if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)) {
-        $error_message = "All fields are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error_message = "Invalid email format.";
-    } elseif ($password !== $confirmPassword) {
-        $error_message = "Passwords do not match.";
-    } else {
-        // Check if email or username already exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email OR username = :username");
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':username', $name);
-        $stmt->execute();
+    // Define the minimum password length
+$minPasswordLength = 8;
 
-        if ($stmt->rowCount() > 0) {
-            $error_message = "Email or username is already registered.";
-        } else {
-            // Insert new student into users table
-            $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role) VALUES (:name, :password, :email, 'student')");
+// Validate form inputs
+if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)) {
+    $error_message = "All fields are required.";
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $error_message = "Invalid email format.";
+} elseif (strlen($password) < $minPasswordLength) {
+    $error_message = "Password must be at least $minPasswordLength characters long.";
+} elseif ($password !== $confirmPassword) {
+    $error_message = "Passwords do not match.";
+} else {
+    // Check if email or username already exists
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email OR username = :username");
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':username', $name);
+    $stmt->execute();
+
+    if ($stmt->rowCount() > 0) {
+        $error_message = "Email or username is already registered.";
+    } else {
+        // Generate a verification token
+        $token = bin2hex(random_bytes(16)); // Create a random token
+
+        // Send verification email
+        $verificationLink = "http://localhost/Capstone_Project/LMS_PAES/verify.php?token=" . $token; // Adjust to your actual path
+
+        // Send verification email
+        $mail = new PHPMailer(true);
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com'; // Set the SMTP server
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'catapangcezarjr@gmail.com '; // SMTP username
+            $mail->Password   = 'REMOVED-SECRET'; // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            // Recipients
+            $mail->setFrom('catapangcezarjr@gmail.com', 'Your Name');
+            $mail->addAddress($email); // Add a recipient
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Email Verification';
+            $mail->Body    = "Please click the following link to verify your email: <a href='$verificationLink'>Verify Email</a>";
+            $mail->AltBody = "Please click the following link to verify your email: $verificationLink";
+
+            // Send the email
+            $mail->send();
+
+            // Store the user temporarily in a separate table or session
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hash the password
+            $stmt = $pdo->prepare("INSERT INTO temp_users (username, password, email, verification_token) VALUES (:name, :password, :email, :token)");
             $stmt->bindParam(':name', $name);
-            $stmt->bindParam(':password', $password);  // Store plaintext password for testing
+            $stmt->bindParam(':password', $hashedPassword); // Bind the hashed password
             $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':token', $token); // Bind the token
 
             if ($stmt->execute()) {
-                // Get the last inserted user ID
-                $userId = $pdo->lastInsertId();
-
-                // Fetch all available courses
-                $coursesStmt = $pdo->prepare("SELECT id FROM courses");
-                $coursesStmt->execute();
-                $courses = $coursesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // Prepare to insert enrollments
-$enrollmentStmt = $pdo->prepare("INSERT INTO enrollments (student_id, course_id) VALUES (:student_id, :course_id)");
-
-// Enroll the user in each course
-foreach ($courses as $course) {
-    $courseId = $course['id'];
-    $enrollmentStmt->bindParam(':student_id', $userId); // Correctly bind the user ID
-    $enrollmentStmt->bindParam(':course_id', $courseId);
-    
-    // Execute the enrollment for the current course
-    $enrollmentStmt->execute();
-}
-                // Redirect to login or dashboard
+                echo "Registration successful! Please check your email to verify your account.";
                 header("Location: LandingPage.php");
-                exit();
+                 exit();
             } else {
-                $error_message = "Registration failed. Please try again.";
+                $error_message = "Failed to store temporary user data. Please try again.";
             }
+        } catch (Exception $e) {
+            $error_message = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
     }
 }
+}
+        
 ?>
 
 <!doctype html>

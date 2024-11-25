@@ -88,7 +88,7 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h5>
                             <p class="card-text text-muted">Type: <?php echo htmlspecialchars($lesson['type']); ?></p>
-                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>&module_id=<?php echo $module_id; ?>&course_id=<?php echo $course_id; ?>" class="btn btn-primary">Start Lesson</a>
+                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-primary">Start Lesson</a>
                         </div>
                     </div>
                 </div>

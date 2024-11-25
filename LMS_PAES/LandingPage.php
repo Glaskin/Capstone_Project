@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label for="inputPassword" class="form-label">Password</label>
                 <input type="password" name="password" class="form-control" id="inputPassword" required>
-                <div id="passwordHelp" class="form-text"><a href="#">Forget password?</a></div>
+                <div id="passwordHelp" class="form-text"><a href="ForgotPassword.php">Forget password?</a></div>
             </div>
 
             <div class="mb-3 form-check">
