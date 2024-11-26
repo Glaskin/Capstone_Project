@@ -32,13 +32,12 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC) ?? ['name' => 'Student'];
 $user['recentActivity'] = 'No recent activity';
 $user['nextLesson'] = 'No upcoming lessons';
 
-// Fetch enrolled courses without progress information
+// Fetch all available courses
 $stmt = $pdo->prepare("
-    SELECT courses.id, courses.title, courses.description, courses.image 
+    SELECT id, title, description, image 
     FROM courses
-    WHERE courses.id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
 ");
-$stmt->execute(['user_id' => $user_id]);
+$stmt->execute();
 $user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch system and course-specific announcements

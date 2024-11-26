@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("INSERT INTO lessons (module_id, title, content, type, position) 
         VALUES (:module_id, :lessonTitle, :lessonContent, 'lesson', 
         (SELECT COALESCE(MAX(position), 0) + 1 FROM (SELECT position FROM lessons WHERE module_id = :module_id) AS temp))");
-$stmt->execute(['module_id' => $module_id, 'lessonTitle' => $lessonTitle, 'lessonContent' => $lessonContent]);
-
+        $stmt->execute(['module_id' => $module_id, 'lessonTitle' => $lessonTitle, 'lessonContent' => $lessonContent]);
+        $_SESSION['message'] = "Lesson '$lessonTitle' added successfully!";
         header("Location: ManageModule.php?module_id=$module_id"); // Refresh to show the new lesson
         exit();
     }
@@ -48,11 +48,11 @@ $stmt->execute(['module_id' => $module_id, 'lessonTitle' => $lessonTitle, 'lesso
     // Handle lesson deletion
     if (isset($_POST['deleteLesson'])) {
         $lesson_id = $_POST['lesson_id'];
-
+        
         // Delete the lesson associated with the current module_id
         $stmt = $pdo->prepare("DELETE FROM lessons WHERE id = :lesson_id AND module_id = :module_id");
         $stmt->execute(['lesson_id' => $lesson_id, 'module_id' => $module_id]);
-
+        $_SESSION['message'] = "Lesson deleted successfully!";
         header("Location: ManageModule.php?module_id=$module_id"); // Refresh to reflect deletion
         exit();
     }
@@ -107,8 +107,8 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Manage Module - <?php echo htmlspecialchars($module['title']); ?></title>
     <link rel="stylesheet" href="bootstrap-offline/css/bootstrap.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/Dashboard.css" />
-    <link rel="stylesheet" href="css/Style.css">
+    <link rel="stylesheet" href="css/Dashboard.css"/>
+    <link rel="stylesheet" href="css/Style.css"/>
 </head>
 
 <body>
@@ -168,11 +168,6 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="mb-3">
                         <label for="lessonTitle" class="form-label">Lesson Title</label>
                         <input type="text" class="form-control" id="lessonTitle" name="lessonTitle" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="lessonContent" class="form-label">Lesson Content</label>
-                        <textarea class="form-control" id="lessonContent" name="lessonContent" rows="4"
-                            required></textarea>
                     </div>
                     <button type="submit" name="addLesson" class="btn btn-success">Add Lesson</button>
                 </form>
@@ -234,9 +229,9 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
     <!-- Footer -->
-        <footer class="bg-warning text-center py-3 mt-5">
-            <p>&copy; 2024 LMS. All rights reserved.</p>
-        </footer>
+    <footer class="footer text-center mt-5">
+        <p>&copy; 2024 ELMS. All rights reserved.</p>
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

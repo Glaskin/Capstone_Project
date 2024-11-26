@@ -5,14 +5,15 @@ body {
     min-height: 100vh;
   }
 
-  .content{
+  .container{
     margin-top: 50px;
     flex: 1;
   }
   
   footer {
+    height: 60px;
     margin-top: 20px;
-    background-color: #f39c12;
+    background-color: #ffc107;
     color: #fff;
     font-size: 1rem;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);

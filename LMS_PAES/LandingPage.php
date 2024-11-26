@@ -15,6 +15,8 @@ try {
 // Initialize error message variable
 $error_message = '';
 
+
+
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -27,29 +29,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "Email and password are required.";
     } else {
         // Fetch user data
-        $stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = :email");
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = :email");
+$stmt->bindParam(':email', $email);
+$stmt->execute();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Check if user exists and password is correct
-        if ($user && $user['password'] === $password) {  // Replace with password_verify in production
-            // Store user information in session
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['role'] = $user['role'];
+// Check if user exists and password is correct
+if ($user && password_verify($password, $user['password'])) {
+    // Store user information in session
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['role'] = $user['role'];
 
-            // Redirect based on user role
-            if ($user['role'] === 'admin') {
-                header("Location: AdminDashboard.php");
-            } elseif ($user['role'] === 'faculty') {
-                header("Location: FacultyDashboard.php");
-            } else {
-                header("Location: Dashboard.php"); // Redirect students to the student dashboard
-            }
-            exit();
-        } else {
-            $error_message = "Invalid email or password.";
-        }
+    // Redirect based on user role
+    if ($user['role'] === 'admin') {
+        header("Location: AdminDashboard.php");
+    } elseif ($user['role'] === 'faculty') {
+        header("Location: FacultyDashboard.php");
+    } else {
+        header("Location: Dashboard.php"); // Redirect students to the student dashboard
+    }
+    exit();
+} else {
+    $error_message = "Invalid email or password.";
+}
     }
 }
 ?>
