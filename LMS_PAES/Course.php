@@ -37,6 +37,7 @@ $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!doctype html>
 <html lang="en">
+
 <head>
     <title><?php echo htmlspecialchars($course['title']); ?> - Syllabus</title>
     <meta charset="utf-8" />
@@ -50,7 +51,7 @@ $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-warning">
         <div class="container">
-            <a class="navbar-brand" href="Dashboard.php">ELMS</a>
+            <a class="navbar-brand" href="Dashboard.php">PAES REVIEWER</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -78,13 +79,13 @@ $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading<?php echo $index; ?>">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapse<?php echo $index; ?>" aria-expanded="false"
-                                aria-controls="collapse<?php echo $index; ?>">
+                            data-bs-target="#collapse<?php echo $index; ?>" aria-expanded="false"
+                            aria-controls="collapse<?php echo $index; ?>">
                             <?php echo htmlspecialchars($module['title']); ?>
                         </button>
                     </h2>
                     <div id="collapse<?php echo $index; ?>" class="accordion-collapse collapse"
-                         aria-labelledby="heading<?php echo $index; ?>" data-bs-parent="#syllabusAccordion">
+                        aria-labelledby="heading<?php echo $index; ?>" data-bs-parent="#syllabusAccordion">
                         <div class="accordion-body">
                             <p>This module covers the following topics:</p>
                             <ul class="list-group">
@@ -110,4 +111,5 @@ $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

@@ -56,7 +56,7 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Navigation Bar -->
     <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
         <div class="container">
-            <a class="navbar-brand" href="Dashboard.php">ELMS</a>
+            <a class="navbar-brand" href="Dashboard.php">PAES REVIEWER</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data ```php
             .bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

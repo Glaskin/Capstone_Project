@@ -69,7 +69,7 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-warning">
         <div class="container-fluid">
             <a class="navbar-brand navbar-brand-logo" href="Dashboard.php">
-                <span>ELMS</span>
+                <span>PAES REVIEWER</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

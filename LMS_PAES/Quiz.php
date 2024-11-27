@@ -77,9 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- Navbar -->
 <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-warning">
     <div class="container-fluid">
-        <a class="navbar-brand navbar-brand-logo" href="FacultyDashboard.php">
-            <img src="Images/abeLogo.png" alt="PAES Logo" height="40">
-            <span>PAES - Faculty</span>
+        <a class="navbar-brand navbar-brand-logo" href="Dashboard.php">
+            <span>PAES REVIEWER</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
