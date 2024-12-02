@@ -117,11 +117,6 @@ tinymce.init({
         input.onchange = function () {
             var file = this.files[0];
 
-            // Check file size (30 MB)
-            if (file.size > 30 * 1024 * 1024) {
-                alert('File size must be less than 30 MB.');
-                return;
-            }
 
             var formData = new FormData();
             formData.append('file', file);

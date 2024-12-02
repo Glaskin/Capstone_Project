@@ -6,11 +6,6 @@ $uploadOk = 1;
 
 // Check if the file was uploaded without errors
 if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
-    // Check file size (30MB limit for images, videos, and documents)
-    if ($_FILES["file"]["size"] > 30 * 1024 * 1024) { // 30 MB
-        echo json_encode(['error' => 'Sorry, your file is too large.']);
-        $uploadOk = 0;
-    }
 
     // Allow certain file formats
     $allowedFileTypes = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi', 'mov', 'pdf', 'docx', 'pptx'];
