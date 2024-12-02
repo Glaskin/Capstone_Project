@@ -109,14 +109,13 @@ tinymce.init({
         if (meta.filetype === 'image') {
             input.setAttribute('accept', 'image/*');
         } else if (meta.filetype === 'media') {
-            input.setAttribute('accept', 'video/*'); // Accept video files
+            input.setAttribute('accept', 'video/*, audio/*'); // Accept video and audio files
         } else if (meta.filetype === 'document') {
             input.setAttribute('accept', '.pdf,.docx,.pptx'); // Accept document files
         }
 
         input.onchange = function () {
             var file = this.files[0];
-
 
             var formData = new FormData();
             formData.append('file', file);

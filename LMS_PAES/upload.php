@@ -24,7 +24,7 @@ if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
         }
     } elseif (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'video') === 0) {
         // Handle video upload
-        // Assume video is valid
+        // Assume video is valid; you can add additional checks if needed
     } elseif (in_array($fileType, ['pdf', 'docx', 'pptx'])) {
         // Handle document upload
         // Assume document is valid
