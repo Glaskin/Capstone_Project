@@ -62,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 ?>
 
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-warning">
     <div class="container-fluid">
         <a class="navbar-brand navbar-brand-logo" href="Dashboard.php">
-            <span>PAES REVIEWER</span>
+            <span>PAES REVIEW</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -86,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a href="DashboardTeacher.php" class="nav-link active">Home</a>
+                    <a href="Dashboard.php" class="nav-link active">Home</a>
                 </li>
                 <li class="nav-item">
                     <a href="Profile.php" class="nav-link">Profile</a>
@@ -101,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <!-- Main Content -->
+<div class="content" style="margin-bottom: 100px;">
 <div class="container mt-5">
 <div class="d-flex justify-content-between align-items-center">
         <h1><?php echo htmlspecialchars($quizTitle); ?></h1>
@@ -111,10 +111,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <a href="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Retake Quiz</a>
     
     <h4>Results:</h4>
-    <ul>
+    <ul style="margin: 10px">
         <?php foreach ($questions as $question): ?>
             <li>
-                <strong><?php echo htmlspecialchars($question['question_text']); ?></strong><br>
+                <strong><?php echo ($question['question_text']); ?></strong><br>
                 <?php 
                 // Get the user's answer
                 $userAnswer = isset($submittedAnswers[$question['question_id']]) ? $submittedAnswers[$question['question_id']] : 'No answer submitted';
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" method="POST">
         <?php foreach ($questions as $question): ?>
             <div class="mb-3">
-                <label><strong><?php echo htmlspecialchars($question['question_text']); ?></strong></label><br>
+                <label><strong><?php echo($question['question_text']); ?></strong></label><br>
                 <?php
                 // Fetch answers for the current question
                 $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
@@ -156,10 +156,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
 <?php endif; ?>
 </div>
+</div>
 
 <!-- Footer -->
 <footer class="bg-warning text-center py-3 mt-5">
-    <p>&copy; 2024 LMS. All rights reserved.</p>
+    <p>&copy; 2024 PAES Review.</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

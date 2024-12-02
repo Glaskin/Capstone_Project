@@ -20,6 +20,8 @@ if (!$module_id || !is_numeric($module_id)) {
     die("A valid Module ID is required.");
 }
 
+$course_id = $_GET['course_id'] ?? null;
+
 // Fetch module details based strictly on the `module_id` in the URL
 $stmt = $pdo->prepare("SELECT title FROM modules WHERE id = :module_id");
 $stmt->execute(['module_id' => $module_id]);
@@ -129,7 +131,13 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </nav>
 
-    <div class="container mt-5" style="margin-top: 100px;">
+    <div class="content" style="margin-top: 100px; margin-bottom: 100px;">
+    <div class="container mt-5">
+    <div class="text-start mb-4">
+        <a href="ManageCourse.php?course_id=<?php echo htmlspecialchars($course_id); ?>" class="btn btn-secondary">
+            Back to Course
+        </a>
+    </div>
         <!-- Module Title -->
         <div class="text-center mb-5">
             <h1><?php echo htmlspecialchars($module['title']); ?></h1>
@@ -175,7 +183,7 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="container">
     <!-- Quizzes List -->
-    <h2 class="text-center mb-4">Quizzes</h2>
+    <h2 class="text-center mb-4">Quizzes and Exercise</h2>
     <div class="list-group mb-5">
         <?php if (!empty($quizzes)): ?>
             <?php foreach ($quizzes as $quiz): ?>
@@ -196,7 +204,7 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p class="text-muted">No quizzes available for this module.</p>
+            <p class="text-muted">No Quizzes/Exercise available for this module.</p>
         <?php endif; ?>
     </div>
 
@@ -209,7 +217,7 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
 
     <!-- Add Quiz Section -->
-    <h2 class="text-center mb-4">Add New Quiz</h2>
+    <h2 class="text-center mb-4">Add New Quiz/Exercise</h2>
     <div class="card mb-5">
         <div class="card-body">
             <form method="POST" action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>">
@@ -217,20 +225,22 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="quizTitle" class="form-label">Quiz Title</label>
                     <input type="text" class="form-control" id="quizTitle" name="quizTitle" required>
                 </div>
-                <button type="submit" name="addQuiz" class="btn btn -success">Add Quiz</button>
+                <button type="submit" name="addQuiz" class="btn btn-success">Add Quiz</button>
             </form>
         </div>
     </div>
 </div>
 
+</div>
+    
     
 
 
 
     <!-- Footer -->
-    <footer class="footer text-center mt-5">
-        <p>&copy; 2024 ELMS. All rights reserved.</p>
-    </footer>
+    <footer class="bg-warning text-center py-3 mt-5">
+            <p>&copy; 2024 PAES Review.</p>
+        </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

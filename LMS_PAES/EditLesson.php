@@ -153,9 +153,9 @@ tinymce.init({
 
 <body>
     <!-- Navigation Bar -->
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
         <div class="container">
-            <a class="navbar-brand" href="FacultyDashboard.php">PAES - Admin</a>
+            <a class="navbar-brand" href="AdminDashboard.php">PAES - Admin</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -203,7 +203,7 @@ tinymce.init({
 
         <!-- Footer -->
         <footer class="bg-warning text-center py-3 mt-5">
-            <p>&copy; 2024 LMS. All rights reserved.</p>
+            <p>&copy; 2024 PAES Review.</p>
         </footer>
     </div>
 

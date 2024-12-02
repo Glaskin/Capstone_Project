@@ -81,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <!-- Navigation Bar -->
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
+   <!-- Navigation Bar -->
+   <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
         <div class="container">
-            <a class="navbar-brand" href="FacultyDashboard.php">PAES - Admin</a>
+            <a class="navbar-brand" href="AdminDashboard.php">PAES - Admin</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -97,8 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </nav>
-
-    <div class="container mt-5" style="margin-top: 100px;">
+    <div class="content" style="margin-top: 100px; margin-bottom: 100px;">
+        <div class="container mt-5">
         <!-- Course Details -->
         <div class="text-center mb-5">
             <h1><?php echo htmlspecialchars($course['title']); ?></h1>
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php echo htmlspecialchars($module['title']); ?> (Position: <?php echo $module['position']; ?>)
                     </span>
                     <div>
-                        <a href="ManageModule.php?module_id=<?php echo $module['id']; ?>" class="btn btn-primary btn-sm">Manage</a>
+                    <a href="ManageModule.php?module_id=<?php echo $module['id']; ?>&course_id=<?php echo $course_id; ?>" class="btn btn-primary btn-sm">Manage</a>
                         <form method="POST" action="ManageCourse.php?course_id=<?php echo $course_id; ?>" style="display: inline;">
                             <input type="hidden" name="module_id" value="<?php echo $module['id']; ?>">
                             <button type="submit" name="deleteModule" class="btn btn-danger btn-sm">Delete</button>
@@ -144,9 +144,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         
     </div>
+    </div>
+    
     <!-- Footer -->
         <footer class="bg-warning text-center py-3 mt-5">
-            <p>&copy; 2024 LMS. All rights reserved.</p>
+            <p>&copy; 2024 PAES Review.</p>
         </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
