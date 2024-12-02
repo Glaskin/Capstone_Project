@@ -14,12 +14,13 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Ensure only faculty can access this page
+// Ensure only faculty and admin can access this page
 $user_id = $_SESSION['user_id'] ?? null;
 $user_role = $_SESSION['role'] ?? null;
 
-if (!$user_id || $user_role !== 'faculty') {
-    header("Location: LandingPage.php"); // Redirect if not logged in or not a faculty member
+if (!$user_id || !in_array($user_role, ['faculty', 'admin'])) {
+    var_dump($user_id, $user_role); // Debugging line
+    header("Location: LandingPage.php");
     exit();
 }
 
