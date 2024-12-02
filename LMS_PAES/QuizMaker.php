@@ -186,18 +186,23 @@ if ($editing_question_id) {
     </script>
 </head>
 <body>
-<nav class="navbar navbar-expand-sm navbar-light bg-warning">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="FacultyDashboard.php">PAES - Faculty</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a href="DashboardTeacher.php" class="nav-link active">Home</a></li>
-                <li class="nav-item"><a href="Profile.php" class="nav-link">Profile</a></li>
-                <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
-            </ul>
+<!-- Navigation Bar -->
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-warning">
+        <div class="container">
+            <a class="navbar-brand" href="FacultyDashboard.php">PAES - Admin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a href="AdminDashboard.php" class="nav-link">Back to Admin</a></li>
+                    <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+
 <div class="container mt-4">
     <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
 
