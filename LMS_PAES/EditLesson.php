@@ -30,7 +30,7 @@ if (!$lesson_id) {
 }
 
 // Fetch the lesson data
-$stmt = $pdo->prepare("SELECT title, content, module_id FROM lessons WHERE id = :lesson_id");
+$stmt = $pdo->prepare("SELECT title, content, module_id, file_path FROM lessons WHERE id = :lesson_id");
 $stmt->execute(['lesson_id' => $lesson_id]);
 $lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -43,9 +43,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lessonTitle = htmlspecialchars($_POST['lessonTitle']);
     $lessonContent = $_POST['lessonContent']; // Get the raw content from TinyMCE
 
+    // Initialize filePath with the existing file path
+    $filePath = $lesson['file_path'];
+
+    // Handle file upload
+    if (isset($_FILES['lessonFile']) && $_FILES['lessonFile']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['lessonFile']['tmp_name'];
+        $fileName = $_FILES['lessonFile']['name'];
+        $fileSize = $_FILES['lessonFile']['size'];
+
+        // Specify the upload directory
+        $uploadFileDir = './uploaded_files/';
+        $dest_path = $uploadFileDir . basename($fileName);
+
+        // Check file size (30 MB)
+        if ($fileSize > 30 * 1024 * 1024) {
+            die("File size must be less than 30 MB.");
+        }
+
+        // Move the file to the upload directory
+        if (move_uploaded_file($fileTmpPath, $dest_path)) {
+            $filePath = $dest_path; // Store the new file path for database insertion
+        } else {
+            die("There was an error moving the uploaded file.");
+        }
+    }
+
     // Update lesson in the database
-    $stmt = $pdo->prepare("UPDATE lessons SET title = :title, content = :content WHERE id = :lesson_id");
-    $stmt->execute(['title' => $lessonTitle, 'content' => $lessonContent, 'lesson_id' => $lesson_id]);
+    $stmt = $pdo->prepare("UPDATE lessons SET title = :title, content = :content, file_path = :file_path WHERE id = :lesson_id");
+    $stmt->execute(['title' => $lessonTitle, 'content' => $lessonContent, 'file_path' => $filePath, 'lesson_id' => $lesson_id]);
 
     // Redirect back to ManageModule.php after updating
     header("Location: ManageModule.php?module_id=" . $lesson['module_id']);
@@ -69,11 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 tinymce.init({
     selector: '#lesson-editor',
     plugins: 'advlist autolink lists link image media charmap preview anchor',
-    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | image media',
+    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist outdent indent | image media document',
     menubar: false,
-    images_upload_url: 'upload.php', // URL to your upload handler
+    images_upload_url: 'upload.php', // URL to your image upload handler
     automatic_uploads: true,
-    file_picker_types: 'image media',
+    file_picker_types: 'image media document', // Add document type
     file_picker_callback: function (callback, value, meta) {
         var input = document.createElement('input');
         input.setAttribute('type', 'file');
@@ -83,6 +109,8 @@ tinymce.init({
             input.setAttribute('accept', 'image/*');
         } else if (meta.filetype === 'media') {
             input.setAttribute('accept', 'video/*'); // Accept video files
+        } else if (meta.filetype === 'document') {
+            input.setAttribute('accept', '.pdf,.docx,.pptx'); // Accept document files
         }
 
         input.onchange = function () {
@@ -94,13 +122,27 @@ tinymce.init({
                 return;
             }
 
-            var reader = new FileReader();
-            reader.onload = function () {
-                callback(reader.result, {
-                    alt: file.name
-                });
-            };
-            reader.readAsDataURL(file);
+            var formData = new FormData();
+            formData.append('file', file);
+
+            // Use fetch API to upload the file
+            fetch('upload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.location) {
+                    // Call the callback with the URL of the uploaded file
+                    callback(data.location, { alt: file.name });
+                } else {
+                    alert('File upload failed: ' + (data.error || 'Unknown error.'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('File upload failed, please try again.');
+            });
         };
         input.click();
     }
@@ -139,6 +181,19 @@ tinymce.init({
                     <div class="mb-3">
                         <label for="lessonContent" class="form-label">Lesson Content</label>
                         <textarea class="form-control" id="lesson-editor" name="lessonContent" rows="6" required><?php echo ($lesson['content']); ?></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lessonFile" class="form-label">Upload File</label>
+                        <input type="file" class="form-control" id="lessonFile" name="lessonFile">
+                        
+                        <?php if (!empty($lesson['file_path'])): ?>
+                            <div class="mt-2">
+                                <strong>Current File:</strong> 
+                                <a href="<?php echo htmlspecialchars($lesson['file_path']); ?>" target="_blank">Download Current File</a>
+                                <br>
+                                <small>You can upload a new file to replace the current one.</small>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     <button type="submit" class="btn btn-success">Save Changes</button>
                     <a href="ManageModule.php?module_id=<?php echo $lesson['module_id']; ?>" class="btn btn-secondary">Cancel</a>

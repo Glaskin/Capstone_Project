@@ -20,8 +20,8 @@ if (!$lesson_id) {
     die("Lesson ID is required.");
 }
 
-// Fetch lesson title and content from lessons table
-$stmt = $pdo->prepare("SELECT title, content, module_id FROM lessons WHERE id = :lesson_id");
+// Fetch lesson title, content, and file path from lessons table
+$stmt = $pdo->prepare("SELECT title, content, module_id, file_path FROM lessons WHERE id = :lesson_id");
 $stmt->execute(['lesson_id' => $lesson_id]);
 $lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -83,7 +83,7 @@ $next_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
                 <li class="breadcrumb-item"><a href="course.php?course_id=<?php echo $module['course_id']; ?>">
                     <?php echo htmlspecialchars($module['course_title']); ?>
                 </a></li>
-                <li class="breadcrumb-item"><a href="module.php?module_id=<?php echo $lesson['module_id']; ?>">
+                <li class="breadcrumb-item"><a href="module.php?module_id=<?php echo $lesson ['module_id']; ?>">
                     <?php echo htmlspecialchars($module['module_title']); ?>
                 </a></li>
                 <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($lesson['title']); ?></li>
@@ -92,11 +92,18 @@ $next_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <!-- Lesson Content -->
         <div class="card shadow-sm mt-4">
-            <div class="card -body">
-                <h2 class="card-title"> <?php echo htmlspecialchars($lesson['title']); ?></h2>
+            <div class="card-body">
+                <h2 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h2>
                 <div class="card-text">
                     <?php echo $lesson['content']; // Display the content directly as HTML ?>
                 </div>
+
+                <!-- Display uploaded file link if it exists -->
+                <?php if (!empty($lesson['file_path'])): ?>
+                    <div class="mt-3">
+                        <a href="<?php echo htmlspecialchars($lesson['file_path']); ?>" class="btn btn-info" target="_blank">Download Lesson</a>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -113,7 +120,6 @@ $next_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
 
-        
     </div>
     <footer class="footer text-center mt-5">
         <p>&copy; 2024 ELMS. All rights reserved.</p>

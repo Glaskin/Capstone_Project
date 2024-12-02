@@ -1,20 +1,20 @@
 <?php
 session_start();
 
-// Ensure only faculty can access this page
-$user_id = $_SESSION['user_id'] ?? null;
-$user_role = $_SESSION['role'] ?? null;
-
-if (!$user_id || $user_role !== 'faculty') {
-    header("Location: LandingPage.php");
-    exit();
-}
-
 // Database connection
 $host = 'localhost';
 $dbname = 'lms_database';
 $username = 'root';
 $password = 'pass';
+
+// Ensure only faculty and admin can access this page
+$user_id = $_SESSION['user_id'] ?? null;
+$user_role = $_SESSION['role'] ?? null;
+
+if (!$user_id || !in_array($user_role, ['faculty', 'admin'])) {
+    header("Location: LandingPage.php"); // Redirect if not logged in or not a faculty or admin member
+    exit();
+}
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -89,12 +89,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['question_text'])) {
 
         // Handle answers based on question type
         if ($question_type == 'multiple_choice') {
-            foreach ($_POST['answers'] as $answer_text => $is_correct) {
+            $correct_answer_found = false; // Ensure only one correct answer is allowed
+
+            foreach ($_POST['answers'] as $answer) {
+                $answer_text = $answer['text'];
+                $is_correct = isset($answer['is_correct']) ? 1 : 0;
+
+                // Allow only one correct answer
+                if ($is_correct && !$correct_answer_found) {
+                    $correct_answer_found = true; // Mark the first correct answer
+                } else {
+                    $is_correct = 0; // Ensure others are marked as incorrect
+                }
+
                 $stmt = $conn->prepare("INSERT INTO Answers (question_id, answer_text, is_correct) VALUES (:question_id, :answer_text, :is_correct)");
                 $stmt->execute([
                     'question_id' => $question_id,
                     'answer_text' => $answer_text,
-                    'is_correct' => $is_correct ? 1 : 0 // Fixed the typo here
+                    'is_correct' => $is_correct
                 ]);
             }
         } elseif ($question_type == 'true_false') {
@@ -158,11 +170,11 @@ if ($editing_question_id) {
             } else if (questionType === 'true_false') {
                 answersContainer.innerHTML += `
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="true_answer" placeholder="True Answer" required>
+                        <input type="text" class="form-control" name="true_answer" placeholder="Answer 1" required>
                         <input type="checkbox" class="form-check-input" name="true_correct" value="1" checked> Correct
                     </div>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="false_answer" placeholder="False Answer" required>
+                        <input type="text" class="form-control" name="false_answer" placeholder="Answer 2" required>
                         <input type="checkbox" class="form-check-input" name="false_correct" value="0"> Correct
                     </div>`;
             }

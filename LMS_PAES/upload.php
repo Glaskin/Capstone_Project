@@ -6,33 +6,35 @@ $uploadOk = 1;
 
 // Check if the file was uploaded without errors
 if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
-    // Check if file is an image or video
-    if (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'image') === 0) {
-        // Handle image upload
-        $check = getimagesize($_FILES["file"]["tmp_name"]);
-        if ($check !== false) {
-            $uploadOk = 1;
-        } else {
-            echo json_encode(['error' => 'File is not an image.']);
-            $uploadOk = 0;
-        }
-    } elseif (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'video') === 0) {
-        // Handle video upload
-        $uploadOk = 1; // Assume video is valid
-    } else {
-        echo json_encode(['error' => 'File is not an image or video.']);
-        $uploadOk = 0;
-    }
-
-    // Check file size (30MB limit for images and videos)
+    // Check file size (30MB limit for images, videos, and documents)
     if ($_FILES["file"]["size"] > 30 * 1024 * 1024) { // 30 MB
         echo json_encode(['error' => 'Sorry, your file is too large.']);
         $uploadOk = 0;
     }
 
     // Allow certain file formats
-    if (!in_array($fileType, ['jpg', 'png', 'jpeg', 'gif', 'mp4', 'avi', 'mov'])) {
-        echo json_encode(['error' => 'Sorry, only JPG, JPEG, PNG, GIF, MP4, AVI, & MOV files are allowed.']);
+    $allowedFileTypes = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi', 'mov', 'pdf', 'docx', 'pptx'];
+    if (!in_array($fileType, $allowedFileTypes)) {
+        echo json_encode(['error' => 'Sorry, only JPG, JPEG, PNG, GIF, MP4, AVI, MOV, PDF, DOCX, & PPTX files are allowed.']);
+        $uploadOk = 0;
+    }
+
+    // Check if the file is an image, video, or document
+    if (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'image') === 0) {
+        // Handle image upload
+        $check = getimagesize($_FILES["file"]["tmp_name"]);
+        if ($check === false) {
+            echo json_encode(['error' => 'File is not a valid image.']);
+            $uploadOk = 0;
+        }
+    } elseif (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'video') === 0) {
+        // Handle video upload
+        // Assume video is valid
+    } elseif (in_array($fileType, ['pdf', 'docx', 'pptx'])) {
+        // Handle document upload
+        // Assume document is valid
+    } else {
+        echo json_encode(['error' => 'File is not an image, video, or allowed document.']);
         $uploadOk = 0;
     }
 

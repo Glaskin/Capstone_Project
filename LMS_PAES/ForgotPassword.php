@@ -39,8 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user) {
             // Generate a unique token
             $token = bin2hex(random_bytes(50));
-            $stmt = $pdo->prepare("UPDATE users SET reset_token = :token WHERE email = :email");
+            $created_at = date('Y-m-d H:i:s'); // Get current date and time
+    
+            // Update users table with the token and created_at timestamp
+            $stmt = $pdo->prepare("UPDATE users SET reset_token = :token, reset_token_created_at = :created_at WHERE email = :email");
             $stmt->bindParam(':token', $token);
+            $stmt->bindParam(':created_at', $created_at);
             $stmt->bindParam(':email', $email);
             $stmt->execute();
 

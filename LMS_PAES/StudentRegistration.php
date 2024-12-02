@@ -91,9 +91,9 @@ if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)
             $stmt->bindParam(':token', $token); // Bind the token
 
             if ($stmt->execute()) {
-                echo "Registration successful! Please check your email to verify your account.";
-                header("Location: LandingPage.php");
-                 exit();
+                // Set success message
+                 $success_message = "Registration successful! A verification email has been sent to your email address.";
+                 header("refresh:5;url=LandingPage.php"); // Redirect after 5 seconds
             } else {
                 $error_message = "Failed to store temporary user data. Please try again.";
             }
@@ -127,6 +127,10 @@ if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)
             // Display error message if there is one
             if (!empty($error_message)) {
                 echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>';
+            }
+             // Display success message if there is one
+             if (!empty($success_message)) {
+                echo '<div class="alert alert-success" role="alert">' . $success_message . '</div>';
             }
             ?>
             

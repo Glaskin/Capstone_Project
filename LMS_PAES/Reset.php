@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 
 // Database connection setup
@@ -30,26 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user) {
         // Check if the token is still valid (30 minutes)
-        $token_created_at = new DateTime($user['reset_token_created_at']);
-        $current_time = new DateTime();
-        $interval = $current_time->diff($token_created_at);
-
-        if ($interval->i >= 30) {
-            $error_message = "This reset token has expired. Please request a new password reset.";
-        } else {
-            // Check if passwords match
-            if ($new_password !== $confirm_password) {
-                $error_message = "Passwords do not match.";
+        if (isset($user['reset_token_created_at']) && $user['reset_token_created_at'] !== null) {
+            $token_created_at = new DateTime($user['reset_token_created_at']);
+            $current_time = new DateTime();
+            $interval = $current_time->diff($token_created_at);
+            if ($interval->i >= 30) {
+                $error_message = "This reset token has expired. Please request a new password reset.";
             } else {
-                // Update the password
-                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("UPDATE users SET password = :password, reset_token = NULL, reset_token_created_at = NULL WHERE id = :id");
-                $stmt->bindParam(':password', $hashed_password);
-                $stmt->bindParam(':id', $user['id']);
-                $stmt->execute();
-
-                $success_message = "Your password has been reset successfully.";
+                // Check if passwords match
+                if ($new_password !== $confirm_password) {
+                    $error_message = "Passwords do not match.";
+                } else {
+                    // Update the password
+                    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare("UPDATE users SET password = :password, reset_token = NULL, reset_token_created_at = NULL WHERE id = :id");
+                    $stmt->bindParam(':password', $hashed_password);
+                    $stmt->bindParam(':id', $user['id']);
+                    $stmt->execute();
+    
+                    $success_message = "Your password has been reset successfully.";
+                }
             }
+        } else {
+            $error_message = "Invalid token or token creation time not set.";
         }
     } else {
         $error_message = "Invalid token.";
@@ -92,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" name="confirm_password" class="form-control" id="confirm_password" required>
             </div>
 
-            <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token']); ?>">
+            <input type="hidden" name="token" value="<?php echo htmlspecialchars($_GET['token'] ?? ''); ?>">
             <button type="submit" class="btn btn-primary mt-4">Reset Password</button>
             <hr class="mt-4 mb-3" />
             <button type="button" onclick="window.location.href='LandingPage.php'" class="btn btn-secondary w-100">Back to Login</button>

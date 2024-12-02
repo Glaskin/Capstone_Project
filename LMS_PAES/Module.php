@@ -47,7 +47,7 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/Style.css">
+    <link rel="stylesheet" href="">
     <style>
         /* Your styles here */
     </style>
@@ -110,9 +110,6 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <footer class="footer text-center mt-5">
-        <p>&copy; 2024 ELMS. All rights reserved.</p>
-    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
