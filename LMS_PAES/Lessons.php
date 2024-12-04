@@ -101,7 +101,7 @@ $next_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
                 <!-- Display uploaded file link if it exists -->
                 <?php if (!empty($lesson['file_path'])): ?>
                     <div class="mt-3">
-                        <a href="<?php echo htmlspecialchars($lesson['file_path']); ?>" class="btn btn-info" target="_blank">Download Lesson</a>
+                        <a href="<?php echo htmlspecialchars($lesson['file_path']); ?>" class="btn btn-info" target="_blank">Download Handout</a>
                     </div>
                 <?php endif; ?>
             </div>

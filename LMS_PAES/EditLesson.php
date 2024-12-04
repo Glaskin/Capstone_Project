@@ -19,7 +19,6 @@ $user_id = $_SESSION['user_id'] ?? null;
 $user_role = $_SESSION['role'] ?? null;
 
 if (!$user_id || !in_array($user_role, ['faculty', 'admin'])) {
-    var_dump($user_id, $user_role); // Debugging line
     header("Location: LandingPage.php");
     exit();
 }
@@ -39,43 +38,84 @@ if (!$lesson) {
     die("Lesson not found.");
 }
 
+// Initialize filePaths with the existing file path or an empty array
+$filePaths = !empty($lesson['file_path']) ? explode(',', $lesson['file_path']) : [];
+
 // Handle form submission to update lesson
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log("Form submitted"); // Debugging line
     $lessonTitle = htmlspecialchars($_POST['lessonTitle']);
-    $lessonContent = $_POST['lessonContent']; // Get the raw content from TinyMCE
+    $lessonContent = $_POST['lessonContent']; // Get the raw content from Tiny MCE
 
-    // Initialize filePath with the existing file path
-    $filePath = $lesson['file_path'];
+    // Initialize filePaths with the existing file path or an empty array
+    $filePaths = !empty($lesson['file_path']) ? explode(',', $lesson['file_path']) : [];
 
-    // Handle file upload
-    if (isset($_FILES['lessonFile']) && $_FILES['lessonFile']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['lessonFile']['tmp_name'];
-        $fileName = $_FILES['lessonFile']['name'];
-        $fileSize = $_FILES['lessonFile']['size'];
+    // Handle file upload from TinyMCE
+    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['file']['tmp_name'];
+        $fileName = $_FILES['file']['name'];
+        $fileSize = $_FILES['file']['size'];
 
         // Specify the upload directory
-        $uploadFileDir = './uploaded_files/';
+        $uploadFileDir = './uploaded_files/media_files/';
         $dest_path = $uploadFileDir . basename($fileName);
 
         // Check file size (30 MB)
         if ($fileSize > 30 * 1024 * 1024) {
+            error_log("File size must be less than 30 MB for file: " . $fileName);
             die("File size must be less than 30 MB.");
         }
 
         // Move the file to the upload directory
         if (move_uploaded_file($fileTmpPath, $dest_path)) {
-            $filePath = $dest_path; // Store the new file path for database insertion
+            $filePaths[] = $dest_path; // Add the new file path to the array
         } else {
-            die("There was an error moving the uploaded file.");
+            error_log("Error moving the uploaded file from TinyMCE: " . $fileName);
+            die("There was an error moving the uploaded file from TinyMCE.");
+        }
+    }
+
+    // Handle file upload from the regular file input
+    if (isset($_FILES['lessonFile'])) {
+        foreach ($_FILES['lessonFile']['tmp_name'] as $key => $fileTmpPath) {
+            $fileName = $_FILES['lessonFile']['name'][$key];
+            $fileSize = $_FILES['lessonFile']['size'][$key];
+            $fileError = $_FILES['lessonFile']['error'][$key];
+
+            // Specify the upload directory
+            $uploadFileDir = './uploaded_files/media_files/';
+            $dest_path = $uploadFileDir . basename($fileName);
+
+            // Check for upload errors
+            if ($fileError !== UPLOAD_ERR_OK) {
+                error_log("File upload error: " . $fileError); // Log the error
+                continue; // Skip this file and continue with the next
+            }
+
+            // Check file size (30 MB)
+            if ($fileSize > 30 * 1024 * 1024) {
+                error_log("File size must be less than 30 MB for file: " . $fileName);
+                continue; // Skip this file and continue with the next
+            }
+
+            // Move the file to the upload directory
+            if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                $filePaths[] = $dest_path; // Add the new file path to the array
+            } else {
+                error_log("Error moving the uploaded file: " . $fileName);
+            }
         }
     }
 
     // Update lesson in the database
+    $filePathString = implode(',', $filePaths); // Convert array back to string for database
     $stmt = $pdo->prepare("UPDATE lessons SET title = :title, content = :content, file_path = :file_path WHERE id = :lesson_id");
-    $stmt->execute(['title' => $lessonTitle, 'content' => $lessonContent, 'file_path' => $filePath, 'lesson_id' => $lesson_id]);
+    $stmt->execute(['title' => $lessonTitle, 'content' => $lessonContent, 'file_path' => $filePathString, 'lesson_id' => $lesson_id]);
 
-    // Redirect back to ManageModule.php after updating
-    header("Location: ManageModule.php?module_id=" . $lesson['module_id']);
+    error_log("Lesson updated successfully"); // Debugging line
+
+    // Redirect back to the same page to refresh
+    header("Location: EditLesson.php?lesson_id=" . $lesson_id);
     exit();
 }
 ?>
@@ -118,7 +158,7 @@ tinymce.init({
             var file = this.files[0];
 
             var formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', file); // This should remain as 'file'
 
             // Use fetch API to upload the file
             fetch('upload.php', {
@@ -156,7 +196,8 @@ tinymce.init({
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="AdminDashboard.php" class="nav-link">Back to Admin</a></li>
+                    <li class="nav-item"><a href="AdminDashboard.php" class="nav-link">Back to Admin</a>
+                    </li>
                     <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
                 </ul>
             </div>
@@ -178,14 +219,22 @@ tinymce.init({
                     </div>
                     <div class="mb-3">
                         <label for="lessonFile" class="form-label">Upload File</label>
-                        <input type="file" class="form-control" id="lessonFile" name="lessonFile">
+                        <input type="file" class="form-control" id="lessonFile" name="lessonFile[]" multiple>
                         
                         <?php if (!empty($lesson['file_path'])): ?>
                             <div class="mt-2">
-                                <strong>Current File:</strong> 
-                                <a href="<?php echo htmlspecialchars($lesson['file_path']); ?>" target="_blank">Download Current File</a>
+                                <strong>Current Files:</strong>
+                                <?php foreach ($filePaths as $filePath): ?>
+                                    <div>
+                                        <a href="<?php echo htmlspecialchars($filePath); ?>" target="_blank">Download File</a>
+                                        <form method="POST" action="EditLesson.php?lesson_id=<?php echo $lesson_id; ?>" style="display:inline;">
+                                            <input type="hidden" name="removeFile" value="<?php echo htmlspecialchars($filePath); ?>">
+                                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                                        </form>
+                                    </div>
+                                <?php endforeach; ?>
                                 <br>
-                                <small>You can upload a new file to replace the current one.</small>
+                                <small>You can upload new files to add to the current ones.</small>
                             </div>
                         <?php endif; ?>
                     </div>
