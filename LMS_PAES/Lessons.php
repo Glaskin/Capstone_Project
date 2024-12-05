@@ -19,7 +19,6 @@ $lesson_id = $_GET['lesson_id'] ?? null;
 if (!$lesson_id) {
     die("Lesson ID is required.");
 }
-
 // Fetch lesson title, content, and file path from lessons table
 $stmt = $pdo->prepare("SELECT title, content, module_id, file_path FROM lessons WHERE id = :lesson_id");
 $stmt->execute(['lesson_id' => $lesson_id]);
@@ -92,20 +91,27 @@ $next_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <!-- Lesson Content -->
         <div class="card shadow-sm mt-4">
-            <div class="card-body">
-                <h2 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h2>
-                <div class="card-text">
-                    <?php echo $lesson['content']; // Display the content directly as HTML ?>
-                </div>
-
-                <!-- Display uploaded file link if it exists -->
-                <?php if (!empty($lesson['file_path'])): ?>
-                    <div class="mt-3">
-                        <a href="<?php echo htmlspecialchars($lesson['file_path']); ?>" class="btn btn-info" target="_blank">Download Handout</a>
-                    </div>
-                <?php endif; ?>
-            </div>
+    <div class="card-body">
+        <h2 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h2>
+        <div class="card-text">
+            <?php echo $lesson['content']; // Display the content directly as HTML ?>
         </div>
+
+        <!-- Display uploaded files if they exist -->
+        <?php if (!empty($lesson['file_path'])): ?>
+            <div class="mt-3">
+                <strong>Available Files:</strong>
+                <?php
+                $filePaths = explode(',', $lesson['file_path']);
+                foreach ($filePaths as $filePath): ?>
+                    <div>
+                        <a href="<?php echo htmlspecialchars($filePath); ?>" target="_blank">Download File</a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
         <!-- Navigation links -->
         <div class="d-flex justify-content-between align-items-center mt-4">

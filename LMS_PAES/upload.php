@@ -1,11 +1,11 @@
 <?php
 $targetDir = "uploaded_files/media_files/"; // Directory to save uploaded files
-$fileType = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION)); // For TinyMCE uploads
-$targetFile = $targetDir . basename($_FILES["file"]["name"]);
 $uploadOk = 1;
 
 // Check if the file was uploaded without errors
 if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
+    $fileType = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
+    $targetFile = $targetDir . basename($_FILES["file"]["name"]);
 
     // Allow certain file formats
     $allowedFileTypes = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi', 'mov', 'pdf', 'docx', 'pptx'];
@@ -21,20 +21,18 @@ if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
     }
 
     // Check if the file is an image, video, or document
-    if (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'image') === 0) {
+    $mimeType = mime_content_type($_FILES["file"]["tmp_name"]);
+    if (strpos($mimeType, 'image') === 0) {
         // Handle image upload
         $check = getimagesize($_FILES["file"]["tmp_name"]);
         if ($check === false) {
             echo json_encode(['error' => 'File is not a valid image.']);
             $uploadOk = 0;
         }
-    } elseif (strpos(mime_content_type($_FILES["file"]["tmp_name"]), 'video') === 0) {
+    } elseif (strpos($mimeType, 'video') === 0) {
         // Handle video upload
         // Assume video is valid; you can add additional checks if needed
-    } elseif (in_array($fileType, ['pdf', 'docx', 'pptx'])) {
-        // Handle document upload
-        // Assume document is valid
-    } else {
+    } elseif (!in_array($fileType, ['pdf', 'docx', 'pptx'])) {
         echo json_encode(['error' => 'File is not an image, video, or allowed document.']);
         $uploadOk = 0;
     }
