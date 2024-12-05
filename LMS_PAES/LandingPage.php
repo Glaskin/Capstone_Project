@@ -15,8 +15,6 @@ try {
 // Initialize error message variable
 $error_message = '';
 
-
-
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

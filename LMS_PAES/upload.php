@@ -1,6 +1,6 @@
 <?php
 $targetDir = "uploaded_files/media_files/"; // Directory to save uploaded files
-$fileType = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION));
+$fileType = strtolower(pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION)); // For TinyMCE uploads
 $targetFile = $targetDir . basename($_FILES["file"]["name"]);
 $uploadOk = 1;
 
@@ -11,6 +11,12 @@ if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
     $allowedFileTypes = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi', 'mov', 'pdf', 'docx', 'pptx'];
     if (!in_array($fileType, $allowedFileTypes)) {
         echo json_encode(['error' => 'Sorry, only JPG, JPEG, PNG, GIF, MP4, AVI, MOV, PDF, DOCX, & PPTX files are allowed.']);
+        $uploadOk = 0;
+    }
+
+    // Check file size (30 MB limit)
+    if ($_FILES["file"]["size"] > 30 * 1024 * 1024) {
+        echo json_encode(['error' => 'File size must be less than 30 MB.']);
         $uploadOk = 0;
     }
 
