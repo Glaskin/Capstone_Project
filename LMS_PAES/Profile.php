@@ -92,42 +92,86 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!doctype html>
 <html lang="en">
+
 <head>
-    <title>Profile Page</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/Style.css">
+    <meta charset="utf-8">
+    <meta name="google-translate-customization" content="9f841e7780177523-3214ceb76f765f38-gc38c6fe6f9d06436-c">
+    </meta>
+
+    <title>PAES : Profile</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/icon.png" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style2.css">
+
 </head>
 
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-warning">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="Dashboard.php">PAES REVIEWER</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a href="Dashboard.php" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link active">Profile</a></li>
-                    <li class="nav-item"><a href="LandingPage.php" class="nav-link">Logout</a></li>
-                </ul>
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
+        <a href="Dashboard.php" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
+            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px">PAES<span
+                    style="color: #000000;"> REVIEW</span></p>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a href="Dashboard.php" class="nav-item nav-link">Home</a>
+                <a href="Profile.php" class="nav-item nav-link">Profile</a>
+                <a href="LandingPage.php" class="nav-item nav-link">Logout</a>
+                <a href="#" class="nav-item nav-link">
+                    <div id="google_translate_element">
+                    </div>
+                </a>
             </div>
         </div>
     </nav>
+    <!-- Navbar End -->
 
-    <!-- Profile Section -->
-    <div class="container mt-5">
+    <!-- Main Profile Section -->
+    <main class="container mt-5">
         <div class="row">
             <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>" class="card-img-top rounded-circle mx-auto mt-4" alt="User Avatar" style="width: 150px; height: 150px;">
+                    <img src="<?php echo htmlspecialchars($user['avatar']); ?>"
+                        class="card-img-top rounded-circle mx-auto mt-4" alt="User  Avatar"
+                        style="width: 150px; height: 150px;">
                     <div class="card-body text-center">
                         <h5 class="card-title"><?php echo htmlspecialchars($user['name']); ?></h5>
                         <p class="card-text text-muted"><?php echo htmlspecialchars($user['email']); ?></p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit
+                            Profile</button>
                     </div>
                 </div>
             </div>
@@ -135,16 +179,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h3>Profile Details</h3>
                 <p class="lead"><?php echo htmlspecialchars($user['bio']); ?></p>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></li>
-                    <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone']); ?></li>
-                    <li class="list-group-item"><strong>Address:</strong> <?php echo htmlspecialchars($user['address']); ?></li>
+                    <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?>
+                    </li>
+                    <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone']); ?>
+                    </li>
+                    <li class="list-group-item"><strong>Address:</strong>
+                        <?php echo htmlspecialchars($user['address']); ?></li>
                 </ul>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Edit Profile Modal -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -155,23 +203,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <form method="POST" action="Profile.php" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="userNameInput" class="form-label">Name</label>
-                            <input type="text" name="userName" class="form-control" id="userNameInput" value="<?php echo htmlspecialchars($user['name']); ?>">
+                            <input type="text" name="userName" class="form-control" id="userNameInput"
+                                value="<?php echo htmlspecialchars($user['name']); ?>">
                         </div>
                         <div class="mb-3">
                             <label for="userEmailInput" class="form-label">Email</label>
-                            <input type="email" name="userEmail" class="form-control" id="userEmailInput" value="<?php echo htmlspecialchars($user['email']); ?>">
+                            <input type="email" name="userEmail" class="form-control" id="userEmailInput"
+                                value="<?php echo htmlspecialchars($user['email']); ?>">
                         </div>
                         <div class="mb-3">
                             <label for="userPhoneInput" class="form-label">Phone</label>
-                            <input type="text" name="userPhone" class="form-control" id="userPhoneInput" value="<?php echo htmlspecialchars($user['phone']); ?>">
+                            <input type="text" name="userPhone" class="form-control" id="userPhoneInput"
+                                value="<?php echo htmlspecialchars($user['phone']); ?>">
                         </div>
                         <div class="mb-3">
                             <label for="userAddressInput" class="form-label">Address</label>
-                            <input type="text" name="userAddress" class="form-control" id="userAddressInput" value="<?php echo htmlspecialchars($user['address']); ?>">
+                            <input type="text" name="userAddress" class="form-control" id="userAddressInput"
+                                value="<?php echo htmlspecialchars($user['address']); ?>">
                         </div>
                         <div class="mb-3">
                             <label for="userBioInput" class="form-label">Bio</label>
-                            <textarea name="userBio" class="form-control" id="userBioInput"><?php echo htmlspecialchars($user['bio']); ?></textarea>
+                            <textarea name="userBio" class="form-control"
+                                id="userBioInput"><?php echo htmlspecialchars($user['bio']); ?></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="userAvatarInput" class="form-label">Profile Picture</label>
@@ -184,10 +237,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <footer class="bg-warning text-center py-3 mt-5">
-        <p>&copy; 2024 LMS. All rights reserved.</p>
-    </footer>
+    <!-- Footer Start -->
+    <div class="container-fluid bg-warning text-dark footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy 2024 LMS</a>, All Right Reserved.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer End -->
 
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
 </body>
+
 </html>

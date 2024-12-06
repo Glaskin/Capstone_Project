@@ -56,17 +56,63 @@ if ($user && password_verify($password, $user['password'])) {
 
 <!doctype html>
 <html lang="en">
-<head>
-    <title>Welcome</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
-    <link rel="stylesheet" href="bootstrap-offline/css/bootstrap.min.css"/>
+<head>
+    <meta charset="utf-8">
+    <meta name="google-translate-customization" content="9f841e7780177523-3214ceb76f765f38-gc38c6fe6f9d06436-c">
+    </meta>
+
+    <title>PAES REVIEW : Login</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/icon.png" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link rel="stylesheet" href="bootstrap-offline/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/login/login.css" />
 </head>
 
 <body>
+    
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
+        <a href="index.php" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
+            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px"><span
+                    style="color: #000000;"> </span></p>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a href="index.php" class="nav-item nav-link">Home</a>
+                <a href="#" class="nav-item nav-link">
+                    <div id="google_translate_element">
+                    </div>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
     <div class="container-fluid">
         <form class="mx-auto" method="POST" action="LandingPage.php" style="max-width: 400px;">
             <h4 class="text-center">Login</h4>
@@ -95,11 +141,21 @@ if ($user && password_verify($password, $user['password'])) {
 
             <button type="submit" class="btn btn-primary mt-4">Login</button>
             <hr class="mt-4 mb-3" />
-            <button type="button" onclick="window.location.href='StudentRegistration.php'" class="btn btn-secondary w-100">Register</button>
+            <button type="button" onclick="window.location.href='StudentRegistration.php'"
+                class="btn btn-secondary w-100">Register</button>
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="bootstrap-offline/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
 </body>
+
 </html>
