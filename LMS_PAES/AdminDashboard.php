@@ -83,26 +83,66 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta name="google-translate-customization" content="9f841e7780177523-3214ceb76f765f38-gc38c6fe6f9d06436-c">
+    </meta>
+
+    <title>PAES : Admin</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/icon.png" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/animate/animate.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style2.css">
+
+
 </head>
 
-<body class="bg-dark text-light">
+<body class="bg-warning text-light">
+
+    <!-- Spinner Start -->
+    <div id="spinner"
+        class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
     <div class="container mt-5">
         <h1 class="text-center mb-4">Admin Dashboard</h1>
 
         <!-- Navigation Tabs -->
         <ul class="nav nav-tabs" id="dashboardTabs">
             <li class="nav-item">
-                <a class="nav-link <?php echo $activeTab === 'users' ? 'active text-light bg-secondary' : 'text-light bg-secondary'; ?>" id="users-tab" data-bs-toggle="tab" href="#users-section">Manage Users</a>
+                <a class="nav-link <?php echo $activeTab === 'users' ? 'active text-light bg-secondary' : 'text-light bg-secondary'; ?>"
+                    id="users-tab" data-bs-toggle="tab" href="#users-section">Manage Users</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo $activeTab === 'courses' ? 'active text-light bg-secondary' : 'text-light bg-secondary'; ?>" id="courses-tab" data-bs-toggle="tab" href="#courses-section">Manage Courses</a>
+                <a class="nav-link <?php echo $activeTab === 'courses' ? 'active text-light bg-secondary' : 'text-light bg-secondary'; ?>"
+                    id="courses-tab" data-bs-toggle="tab" href="#courses-section">Manage Courses</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php echo $activeTab === 'announcements' ? 'active text-light bg-secondary' : 'text-light bg-secondary'; ?>" id="announcements-tab" data-bs-toggle="tab" href="#announcements-section">Announcements</a>
+                <a class="nav-link <?php echo $activeTab === 'announcements' ? 'active text-light bg-secondary' : 'text-light bg-secondary'; ?>"
+                    id="announcements-tab" data-bs-toggle="tab" href="#announcements-section">Announcements</a>
             </li>
         </ul>
 
@@ -160,53 +200,62 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                 </table>
             </div>
 
-    
-<!-- Courses Section -->
-<div class="tab-pane fade <?php echo $activeTab === 'courses' ? 'show active' : ''; ?>" id="courses-section">
-    <h2>Manage Courses</h2>
-    
-    <!-- Add Course Form -->
-    <form method="POST" action="AdminDashboard.php" class="mb-3">
-        <input type="text" name="courseName" placeholder="Course Name" class="form-control mb-2" required>
-        <textarea name="courseDescription" placeholder="Course Description" class="form-control mb-2" rows="2" required></textarea>
-        <button type="submit" name="addCourse" class="btn btn-success">Add Course</button>
-    </form>
-    
-    <!-- Courses Table -->
-    <table class="table table-bordered table-dark table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Course Name</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($courses as $course): ?>
-                <tr>
-                    <td><?php echo $course['id']; ?></td>
-                    <td><?php echo htmlspecialchars($course['title']); ?></td>
-                    <td><?php echo htmlspecialchars($course['description']); ?></td>
-                    <td>
-    <form method="POST" action="AdminDashboard.php" style="display: inline;">
-        <input type="hidden" name="courseId" value="<?php echo $course['id']; ?>">
-        <input type="text" name="editCourseName" placeholder="New Course Name" class="form-control mb-2" value="<?php echo htmlspecialchars($course['title']); ?>" required>
-        <textarea name="editCourseDescription" placeholder="New Course Description" class="form-control mb-2" rows="2" required><?php echo htmlspecialchars($course['description']); ?></textarea>
-        <button type="submit" name="editCourse" class="btn btn-warning btn-sm">Save</button>
-        <button type="submit" name="deleteCourse" class="btn btn-danger btn-sm">Delete</button>
-    </form>
-    <a href="ManageCourse.php?course_id=<?php echo $course['id']; ?>" class="btn btn-info btn-sm">Edit Content</a>
-</td>
-                        
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-</div>
+
+            <!-- Courses Section -->
+            <div class="tab-pane fade <?php echo $activeTab === 'courses' ? 'show active' : ''; ?>"
+                id="courses-section">
+                <h2>Manage Courses</h2>
+
+                <!-- Add Course Form -->
+                <form method="POST" action="AdminDashboard.php" class="mb-3">
+                    <input type="text" name="courseName" placeholder="Course Name" class="form-control mb-2" required>
+                    <textarea name="courseDescription" placeholder="Course Description" class="form-control mb-2"
+                        rows="2" required></textarea>
+                    <button type="submit" name="addCourse" class="btn btn-success">Add Course</button>
+                </form>
+
+                <!-- Courses Table -->
+                <table class="table table-bordered table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Course Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($courses as $course): ?>
+                            <tr>
+                                <td><?php echo $course['id']; ?></td>
+                                <td><?php echo htmlspecialchars($course['title']); ?></td>
+                                <td><?php echo htmlspecialchars($course['description']); ?></td>
+                                <td>
+                                    <form method="POST" action="AdminDashboard.php" style="display: inline;">
+                                        <input type="hidden" name="courseId" value="<?php echo $course['id']; ?>">
+                                        <input type="text" name="editCourseName" placeholder="New Course Name"
+                                            class="form-control mb-2"
+                                            value="<?php echo htmlspecialchars($course['title']); ?>" required>
+                                        <textarea name="editCourseDescription" placeholder="New Course Description"
+                                            class="form-control mb-2" rows="2"
+                                            required><?php echo htmlspecialchars($course['description']); ?></textarea>
+                                        <button type="submit" name="editCourse" class="btn btn-warning btn-sm">Save</button>
+                                        <button type="submit" name="deleteCourse"
+                                            class="btn btn-danger btn-sm">Delete</button>
+                                    </form>
+                                    <a href="ManageCourse.php?course_id=<?php echo $course['id']; ?>"
+                                        class="btn btn-info btn-sm mt-2">Edit Content</a>
+                                </td>
+
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Announcements Section -->
-            <div class="tab-pane fade <?php echo $activeTab === 'announcements' ? 'show active' : ''; ?>" id="announcements-section">
+            <div class="tab-pane fade <?php echo $activeTab === 'announcements' ? 'show active' : ''; ?>"
+                id="announcements-section">
                 <h2>Manage Announcements</h2>
                 <form method="POST" action="AdminDashboard.php" class="mb-3">
                     <input type="text" name="announcementTitle" placeholder="Announcement Title"
@@ -247,7 +296,16 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/wow/wow.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="js/main.js"></script>
 </body>
 
 </html>
