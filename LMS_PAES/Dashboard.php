@@ -39,7 +39,6 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute();
 $user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 // Fetch system and course-specific announcements
 $stmt = $pdo->prepare("
     SELECT title, date, type 
@@ -50,6 +49,7 @@ $stmt = $pdo->prepare("
 $stmt->execute(['user_id' => $user_id]);
 $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -84,6 +84,7 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style2.css">
+    <link rel="stylesheet" href="css/Style.css">
 
 
 </head>
@@ -129,6 +130,7 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <!-- Recent Activities and Next Lesson Section -->
+        <!--
         <div class="row mx-4">
             <div class="col-sm-6 mb-3">
                 <div class="card">
@@ -152,7 +154,7 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Courses Section -->
         <div class="container my-5">
@@ -161,8 +163,8 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php foreach ($user['courses'] as $course): ?>
                     <div class="col-md-4 mb-4 d-flex align-items-stretch">
                         <div class="card">
-                            <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
-                                alt="Course Image" height="235">
+                            <!-- <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
+                                alt="Course Image" height="235"> -->
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($course['title']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars($course['description']); ?></p>
