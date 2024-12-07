@@ -118,14 +118,14 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
 
 <body class="bg-warning text-light">
 
-    <!-- Spinner Start -->
+    <!-- Spinner Start 
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    <!-- Spinner End -->
+     Spinner End -->
 
     <div class="container mt-5">
         <h1 class="text-center mb-4">Admin Dashboard</h1>

@@ -186,6 +186,25 @@ if ($editing_question_id) {
     $editing_answers->execute(['question_id' => $editing_question_id]);
     $editing_answers = $editing_answers->fetchAll(PDO::FETCH_ASSOC);
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $number_of_questions = $_POST['number_of_questions'] ?? 0; // Get the number of questions
+    $action = $_POST['action'] ?? null;
+
+    try {
+        if ($action === 'update' && $quiz_id) {
+            // Update existing quiz with the number of questions
+            $stmt = $conn->prepare("UPDATE Quizzes SET number_of_questions = :number_of_questions WHERE quiz_id = :quiz_id");
+            $stmt->execute(['number_of_questions' => $number_of_questions, 'quiz_id' => $quiz_id]);
+
+            // Redirect or handle further logic
+            header("Location: QuizMaker.php?quiz_id=$quiz_id&module_id=$module_id");
+            exit();
+        }
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -341,7 +360,10 @@ if ($editing_question_id) {
                 action="QuizMaker.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>">
                 <input type="hidden" name="question_id"
                     value="<?php echo $editing_question ? $editing_question['question_id'] : ''; ?>">
-
+                <div class="mb-3">
+                    <label for="number_of_questions" class="form-label">Set The Numbers of Questions</label>
+                    <input type="number" class="form-control" id="number_of_questions" name="number_of_questions" min="1" value="<?php echo htmlspecialchars($quiz['number_of_questions'] ?? ''); ?>" required>
+                </div>
                 <div class="mb-3">
                     <label for="question_text" class="form-label">Question Text</label>
                     <textarea id="question_text" name="question_text"
