@@ -417,6 +417,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="text" class="form-control" name="answers[2][text]" placeholder="Answer 3">
                             <input type="checkbox" class="form-check-input" name="answers[2][is_correct]" value="1"> Correct
                         </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="answers[3][text]" placeholder="Answer 3">
+                            <input type="checkbox" class="form-check-input" name="answers[3][is_correct]" value="1"> Correct
+                        </div>
                     <?php endif; ?>
                 </div>
 
