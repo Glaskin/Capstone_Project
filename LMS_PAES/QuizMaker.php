@@ -7,6 +7,15 @@ $dbname = 'lms_database';
 $username = 'root';
 $password = 'pass';
 
+// Ensure only faculty and admin can access this page
+$user_id = $_SESSION['user_id'] ?? null;
+$user_role = $_SESSION['role'] ?? null;
+
+if (!$user_id || !in_array($user_role, ['faculty', 'admin'])) {
+    header("Location: LandingPage.php"); // Redirect if not logged in or not a faculty or admin member
+    exit();
+}
+
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -186,25 +195,6 @@ if ($editing_question_id) {
     $editing_answers->execute(['question_id' => $editing_question_id]);
     $editing_answers = $editing_answers->fetchAll(PDO::FETCH_ASSOC);
 }
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $number_of_questions = $_POST['number_of_questions'] ?? 0; // Get the number of questions
-    $action = $_POST['action'] ?? null;
-
-    try {
-        if ($action === 'update' && $quiz_id) {
-            // Update existing quiz with the number of questions
-            $stmt = $conn->prepare("UPDATE Quizzes SET number_of_questions = :number_of_questions WHERE quiz_id = :quiz_id");
-            $stmt->execute(['number_of_questions' => $number_of_questions, 'quiz_id' => $quiz_id]);
-
-            // Redirect or handle further logic
-            header("Location: QuizMaker.php?quiz_id=$quiz_id&module_id=$module_id");
-            exit();
-        }
-    } catch (Exception $e) {
-        echo "Error: " . $e->getMessage();
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -240,6 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style2.css">
+    <link rel="stylesheet" href="css/Style.css">
 
  
     <!-- JavaScript Libraries -->
@@ -272,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             answersContainer.innerHTML = '';
 
             if (questionType === 'multiple_choice') {
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < 4; i++) {
                     answersContainer.innerHTML += `
                     <div class="input-group mb-2">
                         <input type="text" class="form-control" name="answers[${i}][text]" placeholder="Answer ${i + 1}" required>
@@ -360,10 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 action="QuizMaker.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>">
                 <input type="hidden" name="question_id"
                     value="<?php echo $editing_question ? $editing_question['question_id'] : ''; ?>">
-                <div class="mb-3">
-                    <label for="number_of_questions" class="form-label">Set The Numbers of Questions</label>
-                    <input type="number" class="form-control" id="number_of_questions" name="number_of_questions" min="1" value="<?php echo htmlspecialchars($quiz['number_of_questions'] ?? ''); ?>" required>
-                </div>
+
                 <div class="mb-3">
                     <label for="question_text" class="form-label">Question Text</label>
                     <textarea id="question_text" name="question_text"
@@ -418,7 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" class="form-check-input" name="answers[2][is_correct]" value="1"> Correct
                         </div>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" name="answers[3][text]" placeholder="Answer 3">
+                            <input type="text" class="form-control" name="answers[3][text]" placeholder="Answer 4">
                             <input type="checkbox" class="form-check-input" name="answers[3][is_correct]" value="1"> Correct
                         </div>
                     <?php endif; ?>
