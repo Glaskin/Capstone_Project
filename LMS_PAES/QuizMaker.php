@@ -322,7 +322,7 @@ if ($editing_question_id) {
         <div class="container mt-4">
             <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
 
-            <h2 class="mt-5">Questions</h2>
+            <h2 class="mt-5">Questions Bank</h2>
             <ul class="list-group">
                 <?php foreach ($quiz_questions as $question): ?>
                     <li class="list-group-item">

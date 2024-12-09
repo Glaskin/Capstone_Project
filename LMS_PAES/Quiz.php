@@ -22,18 +22,31 @@ $questions = [];
 $score = null;
 $submittedAnswers = [];
 $correctAnswers = [];
+$originalOrder = [];
 
-// Fetch quiz title and questions
+// Fetch quiz title and number of questions
 if ($quiz_id > 0) {
-    // Fetch quiz title
-    $quizQuery = $pdo->prepare("SELECT title FROM Quizzes WHERE quiz_id = :quiz_id");
+    // Fetch quiz title and number of questions allowed
+    $quizQuery = $pdo->prepare("SELECT title, number_of_questions FROM Quizzes WHERE quiz_id = :quiz_id");
     $quizQuery->execute(['quiz_id' => $quiz_id]);
-    $quizTitle = $quizQuery->fetchColumn();
-
-    // Fetch questions for the quiz
-    $questionsQuery = $pdo->prepare("SELECT question_id, question_text FROM Questions WHERE quiz_id = :quiz_id");
-    $questionsQuery->execute(['quiz_id' => $quiz_id]);
-    $questions = $questionsQuery->fetchAll(PDO::FETCH_ASSOC);
+    $quizData = $quizQuery->fetch(PDO::FETCH_ASSOC);
+    
+    if ($quizData) {
+        $quizTitle = $quizData['title'];
+        $number_of_questions = $quizData['number_of_questions'];
+        
+        // Fetch questions for the quiz, randomized and limited by number_of_questions
+        $questionsQuery = $pdo->prepare("SELECT question_id, question_text FROM Questions WHERE quiz_id = :quiz_id ORDER BY RAND() LIMIT :limit");
+        $questionsQuery->bindValue(':quiz_id', $quiz_id, PDO::PARAM_INT);
+        $questionsQuery->bindValue(':limit', $number_of_questions, PDO::PARAM_INT);
+        $questionsQuery->execute();
+        
+        // Store questions in original order
+        while ($row = $questionsQuery->fetch(PDO::FETCH_ASSOC)) {
+            $questions[$row['question_id']] = $row; // Store question by ID
+            $originalOrder[] = $row['question_id']; // Store the original order of question IDs
+        }
+    }
 }
 
 // Handle form submission
@@ -68,8 +81,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="google-translate-customization" content="9f841e7780177523-3214ceb76f765f38-gc38c6fe6f9d06436-c">
-    </meta>
-
     <title>PAES : Quizzes</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
@@ -81,9 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -148,26 +157,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <h4>Results:</h4>
                     <ul style="margin: 10px">
-                        <?php foreach ($questions as $question): ?>
-                            <li>
-                                <strong><?php echo ($question['question_text']); ?></strong><br>
-                                <?php
-                                // Get the user's answer
-                                $userAnswer = isset($submittedAnswers[$question['question_id']]) ? $submittedAnswers[$question['question_id']] : 'No answer submitted';
+    <?php foreach ($originalOrder as $question_id): ?>
+        <?php
+        // Get the question from the $questions array using the original order
+        $question = $questions[$question_id]; // Access the question directly by ID
+        ?>
+        <li>
+            <strong><?php echo ($question['question_text']); ?></strong><br>
+            <?php
+            // Get the user's answer
+            $userAnswer = isset($submittedAnswers[$question['question_id']]) ? $submittedAnswers[$question['question_id']] : 'No answer submitted';
 
-                                // Display user's answer
-                                echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
+            // Display user's answer
+            echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
 
-                                // Check if there is a correct answer
-                                if (isset($correctAnswers[$question['question_id']])): ?>
-                                    <span class="text-success">Correct Answer:
-                                        <?php echo htmlspecialchars($correctAnswers[$question['question_id']]); ?></span>
-                                <?php else: ?>
-                                    <span class="text-danger">No Correct Answer Found</span>
-                                <?php endif; ?>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+            // Check if there is a correct answer
+            if (isset($correctAnswers[$question['question_id']])): ?>
+                <span class="text-success">Correct Answer:
+                    <?php echo htmlspecialchars($correctAnswers[$question['question_id']]); ?></span>
+            <?php else: ?>
+                <span class="text-danger">No Correct Answer Found</span>
+            <?php endif; ?>
+        </li>
+    <?php endforeach; ?>
+</ul>
                 <?php else: ?>
                     <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>"
                         method="POST">
@@ -223,7 +236,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
-
 
 </body>
 

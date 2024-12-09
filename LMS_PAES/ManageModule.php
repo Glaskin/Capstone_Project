@@ -74,8 +74,9 @@ if ($module_id) {
 // Handle adding a new quiz
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addQuiz'])) {
     $quizTitle = $_POST['quizTitle'];
-    $stmt = $pdo->prepare("INSERT INTO Quizzes (title, module_id) VALUES (?, ?)");
-    $stmt->execute([$quizTitle, $module_id]);
+    $number_of_questions = $_POST['number_of_questions']; // Get the number of questions
+    $stmt = $pdo->prepare("INSERT INTO Quizzes (title, module_id, number_of_questions) VALUES (?, ?, ?)");
+    $stmt->execute([$quizTitle, $module_id, $number_of_questions]);
     $_SESSION['message'] = "Quiz '$quizTitle' added successfully!";
     header("Location: ManageModule.php?module_id=$module_id");
     exit();
@@ -228,6 +229,7 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>
                                     <?php echo htmlspecialchars($quiz['title']); ?>
+                                    | Questions: <?php echo htmlspecialchars($quiz['number_of_questions']); ?>
                                 </span>
                                 <div>
                                     <a href="QuizMaker.php?quiz_id=<?php echo htmlspecialchars($quiz['quiz_id']); ?>&module_id=<?php echo htmlspecialchars($module_id); ?>"
@@ -258,19 +260,22 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 ?>
 
                 <!-- Add Quiz Section -->
-                <h2 class="text-center mb-4">Add New Quiz/Exercise</h2>
-                <div class="card mb-5">
-                    <div class="card-body">
-                        <form method="POST"
-                            action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>">
-                            <div class="mb-3">
-                                <label for="quizTitle" class="form-label">Quiz Title</label>
-                                <input type="text" class="form-control" id="quizTitle" name="quizTitle" required>
-                            </div>
-                            <button type="submit" name="addQuiz" class="btn btn-success">Add Quiz</button>
-                        </form>
-                    </div>
-                </div>
+<h2 class="text-center mb-4">Add New Quiz/Exercise</h2>
+<div class="card mb-5">
+    <div class="card-body">
+        <form method="POST" action="ManageModule.php?module_id=<?php echo htmlspecialchars($module_id); ?>">
+            <div class="mb-3">
+                <label for="quizTitle" class="form-label">Quiz Title</label>
+                <input type="text" class="form-control" id="quizTitle" name="quizTitle" required>
+            </div>
+            <div class="mb-3">
+                <label for="number_of_questions" class="form-label">Number of Questions</label>
+                <input type="number" class="form-control" id="number_of_questions" name="number_of_questions" min="1" required>
+            </div>
+            <button type="submit" name="addQuiz" class="btn btn-success">Add Quiz</button>
+        </form>
+    </div>
+</div>
             </div>
 
         </div>
