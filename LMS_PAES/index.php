@@ -17,7 +17,9 @@
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap"
+        rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -32,18 +34,18 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style2.css" rel="stylesheet">
-    
+
 </head>
 
 <body>
-    <!-- Spinner Start
+    <!-- Spinner Start -->
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    Spinner End -->
+    <!-- Spinner End -->
 
 
     <!-- Navbar Start -->
@@ -60,8 +62,8 @@
                 <a href="LandingPage.php" class="nav-item nav-link">Login</a>
                 <a href="StudentRegistration.php" class="nav-item nav-link">Register</a>
                 <a href="#" class="nav-item nav-link">
-                <div id="google_translate_element">
-                </div>
+                    <div id="google_translate_element">
+                    </div>
                 </a>
             </div>
         </div>
@@ -79,9 +81,12 @@
                     <div class="container">
                         <div class="row justify-content-start">
                             <div class="col-sm-10 col-lg-8">
-                                <h5 class=" text-uppercase mb-3 animated slideInDown" style="color: #f1f505;">E-learning platform</h5>
-                                <h1 class="display-3 text-white animated slideInDown">title to edit</h1>
-                                <p class=" text-white mb-4 pb-2">short description</p>
+                                <h5 class=" text-uppercase mb-3 animated slideInDown" style="color: #f1f505;">E-learning
+                                    platform</h5>
+                                <h1 class="display-3 text-white animated slideInDown">Level Up Your PAES Knowledge with
+                                    Free Online Courses</h1>
+                                <p class=" text-white mb-4 pb-2">Enhance your understanding of the
+                                    Philippine Agricultural Engineering Standards with our free online courses!</p>
                                 <a href="signup.html" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Join
                                     Now</a>
                             </div>
@@ -98,9 +103,11 @@
                             <div class="col-sm-10 col-lg-8">
                                 <h5 class=" text-uppercase mb-3 animated slideInDown" style="color: #f1f505;">Welcome to
                                     PAES REVIEW</h5>
-                                <h1 class="display-3 text-white animated slideInDown">title to edit
+                                <h1 class="display-3 text-white animated slideInDown">Empower Your Learning Journey
                                 </h1>
-                                <p class=" text-white mb-4 pb-2">short description</p>
+                                <p class=" text-white mb-4 pb-2">Dive into lessons, and quizzes to enhance your
+                                    knowledge in Philippine Agricultural Engineering Standards.
+                                    Learn, grow, and excel at your own pace!</p>
                                 <a href="signup.html" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Join
                                     Now</a>
                             </div>
@@ -119,7 +126,7 @@
             <div class="row g-2 text-center">
                 <div class="col-12 wow fadeInUp" data-wow-delay="0.3s">
                     <h1 style="color: #fb873f;">Invest in your professional goals with PAES REVIEWER</h1>
-                    <p class="mb-5">Get unlimited access to over our courses, Projects, Specializations, and certificates on PAES.</p>
+                    <p class="mb-5">Get unlimited access to over our Courses, Lessons, and Quizzes on PAES.</p>
                 </div>
             </div>
             <div class="row g-4">
@@ -128,7 +135,9 @@
                         <div class="p-4">
                             <img src="img/icon1.png" alt="" width="60px" class="mb-4">
                             <h5 class="mb-3">Learn anything</h5>
-                            <p>Explore any interest or trending topic, take prerequisites, and advance your skills</p>
+                            <p>Explore a wide range of topics and advance your PAES skills with the resources available
+                                on our website.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +146,7 @@
                         <div class="p-4">
                             <img src="img/icon2.png" alt="" width="60px" class="mb-4">
                             <h5 class="mb-3">For Free</h5>
-                            <p>Spend less money on your learning if you plan to take multiple courses this year</p>
+                            <p>Acquire knowledge at no cost, as our website provides all learning materials for free</p>
                         </div>
                     </div>
                 </div>
@@ -155,8 +164,9 @@
                     <div class="service-item text-center pt-3 shadow">
                         <div class="p-4">
                             <img src="img/icon4.png" alt="" width="60px" class="mb-4">
-                            <h5 class="mb-3">Unlimited certificates</h5>
-                            <p>Earn a certificate for every learning program that you complete at no additional cost</p>
+                            <h5 class="mb-3">Refresh your Knowledge</h5>
+                            <p>Refresh your knowledge and deepen your expertise in PAES by reviewing the resources
+                                available</p>
                         </div>
                     </div>
                 </div>
@@ -179,27 +189,31 @@
                 <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
                     <h6 class="section-title bg-white text-start pe-3">About Us</h6>
                     <h1 class="mb-4" style="color: #fb873f;">Welcome to PAES REVIEW</h1>
-                    <p class="mb-4">description 1</p>
-                    <p class="mb-4"> description 2</p>
+                    <p class="mb-4">Welcome to PAES REVIEW, where we offer accessible learning resources to help you
+                        understand Philippine Agricultural Engineering Standards. Our goal is to provide you with
+                        practical, self-paced materials that you can use to enhance your knowledge and skills.</p>
+                    <p class="mb-4"> At PAES REVIEW, we believe in making education easier for everyone. We aim to
+                        support learners around the Philippines by providing simple, reliable resources to help you grow in
+                        the field of agricultural engineering.</p>
                     <div class="row gy-2 gx-4 mb-4">
                         <div class="col-sm-6">
-                            <p class="mb-0"><i class="fa fa-arrow-right  me-2"></i>to edit</p>
+                            <p class="mb-0"><i class="fa fa-arrow-right  me-2"></i>Practical Learning Resources</p>
                         </div>
                         <div class="col-sm-6">
+                            <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>Self-Paced Study Materials</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>Flexible Learning Paths</p>
+                        </div>
+                       <!--  <div class="col-sm-6">
                             <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>to edit</p>
                         </div>
                         <div class="col-sm-6">
                             <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>to edit</p>
                         </div>
                         <div class="col-sm-6">
-                            <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>to edit</p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>to edit</p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>to edit</p>
-                        </div>
+                            <p class="mb-0"><i class="fa fa-arrow-right me-2"></i>to edit
+                        </div></p>-->
                     </div>
                     <a class="btn text-light py-3 px-5 mt-2" href="about.html">Read More</a>
                 </div>
@@ -215,7 +229,7 @@
                 <div class="col-lg-6 p-5 wow fadeInUp" data-wow-delay="0.3s">
 
                     <h1 class="mb-4" style="color: #fb873f;">Explore Free Courses</h1>
-                    <p class="mb-4">to edit</p>
+                    <p class="mb-4">Start your online learning at PAES REVIEW for free with our courses across various knowledeges about Philippine Agricultural Engineering Standards.</p>
 
                     <a class="btn text-light py-3 px-5 mt-2" href="signup.html">Start For Free</a>
                 </div>
@@ -229,8 +243,8 @@
         </div>
     </div>
 
-   <!-- Courses Start pwedeng gamitin? -->
-   <!-- <div class="container-xxl py-5">
+    <!-- Courses Start pwedeng gamitin? -->
+    <!-- <div class="container-xxl py-5">
         <div class="container">
             <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
                 <h6 class="section-title bg-white text-center px-3">Popular Courses</h6>
