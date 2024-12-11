@@ -24,23 +24,23 @@ $submittedAnswers = [];
 $correctAnswers = [];
 $originalOrder = [];
 
-// Fetch quiz title and number of questions
+// Fetch quiz title and number of questions allowed
 if ($quiz_id > 0) {
     // Fetch quiz title and number of questions allowed
     $quizQuery = $pdo->prepare("SELECT title, number_of_questions FROM Quizzes WHERE quiz_id = :quiz_id");
     $quizQuery->execute(['quiz_id' => $quiz_id]);
     $quizData = $quizQuery->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($quizData) {
         $quizTitle = $quizData['title'];
         $number_of_questions = $quizData['number_of_questions'];
         
-        // Fetch questions for the quiz, randomized and limited by number_of_questions
+        // Fetch questions for the quiz in a randomized order
         $questionsQuery = $pdo->prepare("SELECT question_id, question_text FROM Questions WHERE quiz_id = :quiz_id ORDER BY RAND() LIMIT :limit");
         $questionsQuery->bindValue(':quiz_id', $quiz_id, PDO::PARAM_INT);
         $questionsQuery->bindValue(':limit', $number_of_questions, PDO::PARAM_INT);
         $questionsQuery->execute();
-        
+
         // Store questions in original order
         while ($row = $questionsQuery->fetch(PDO::FETCH_ASSOC)) {
             $questions[$row['question_id']] = $row; // Store question by ID
@@ -53,15 +53,22 @@ if ($quiz_id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $submittedAnswers = $_POST['answers'];
     $score = 0;
+    $answeredOrder = []; // Initialize an array to keep track of answered questions
 
-    foreach ($submittedAnswers as $question_id => $answer) {
-        // Check if the submitted answer is correct
-        $answerQuery = $pdo->prepare("SELECT is_correct FROM Answers WHERE question_id = :question_id AND answer_text = :answer");
-        $answerQuery->execute(['question_id' => $question_id, 'answer' => $answer]);
-        $is_correct = $answerQuery->fetchColumn();
+    // Iterate through the original order to maintain the order of answered questions
+    foreach ($originalOrder as $question_id) {
+        if (isset($submittedAnswers[$question_id])) {
+            $answeredOrder[] = $question_id; // Add to answered order if answered
+            $answer = $submittedAnswers[$question_id];
 
-        if ($is_correct) {
-            $score++;
+            // Check if the submitted answer is correct
+            $answerQuery = $pdo->prepare("SELECT is_correct FROM Answers WHERE question_id = :question_id AND answer_text = :answer");
+            $answerQuery->execute(['question_id' => $question_id, 'answer' => $answer]);
+            $is_correct = $answerQuery->fetchColumn();
+
+            if ($is_correct) {
+                $score++;
+            }
         }
     }
 
@@ -72,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $correctAnswers = $correctAnswersQuery->fetchAll(PDO::FETCH_KEY_PAIR);
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -151,35 +157,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Back to specific module -->
                 </div>
                 <?php if ($score !== null): ?>
-                    <h3>Your Score: <?php echo $score; ?> / <?php echo count($questions); ?></h3>
-                    <a href="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>"
-                        class="btn btn-secondary">Retake Quiz</a>
+    <h3>Your Score: <?php echo $score; ?> / <?php echo count($questions); ?></h3>
+    <a href="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Retake Quiz</a>
 
-                    <h4>Results:</h4>
-                    <ul style="margin: 10px">
-    <?php foreach ($originalOrder as $question_id): ?>
-        <?php
-        // Get the question from the $questions array using the original order
-        $question = $questions[$question_id]; // Access the question directly by ID
-        ?>
-        <li>
-            <strong><?php echo ($question['question_text']); ?></strong><br>
+    <h4>Results:</h4>
+<ul style="margin: 10px">
+    <?php foreach ($originalOrder as $question_id): // Iterate through original order ?>
+        <?php if (isset($questions[$question_id])): // Check if the question exists ?>
             <?php
             // Get the user's answer
-            $userAnswer = isset($submittedAnswers[$question['question_id']]) ? $submittedAnswers[$question['question_id']] : 'No answer submitted';
+            $userAnswer = isset($submittedAnswers[$question_id]) ? $submittedAnswers[$question_id] : 'No answer submitted';
+            ?>
+            <li>
+                <strong><?php echo ($questions[$question_id]['question_text']); ?></strong><br>
+                <?php
+                // Display user's answer
+                echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
 
-            // Display user's answer
-            echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
-
-            // Check if there is a correct answer
-            if (isset($correctAnswers[$question['question_id']])): ?>
-                <span class="text-success">Correct Answer:
-                    <?php echo htmlspecialchars($correctAnswers[$question['question_id']]); ?></span>
-            <?php else: ?>
-                <span class="text-danger">No Correct Answer Found</span>
-            <?php endif; ?>
-        </li>
-    <?php endforeach; ?>
+                // Check if there is a correct answer
+                if (isset($correctAnswers[$question_id])): ?>
+                    <span class="text-success">Correct Answer:
+                        <?php echo htmlspecialchars($correctAnswers[$question_id]); ?></span>
+                <?php else: ?>
+                    <span class="text-danger">No Correct Answer Found</span>
+                <?php endif; ?>
+            </li>
+        <?php endif; // End of question existence check ?>
+    <?php endforeach; // End of original order loop ?>
 </ul>
                 <?php else: ?>
                     <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>"
