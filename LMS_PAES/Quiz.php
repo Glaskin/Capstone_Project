@@ -35,8 +35,8 @@ if ($quiz_id > 0) {
         $quizTitle = $quizData['title'];
         $number_of_questions = $quizData['number_of_questions'];
         
-        // Fetch questions for the quiz in a randomized order
-        $questionsQuery = $pdo->prepare("SELECT question_id, question_text FROM Questions WHERE quiz_id = :quiz_id ORDER BY RAND() LIMIT :limit");
+        // Fetch questions for the quiz with a limit
+        $questionsQuery = $pdo->prepare("SELECT question_id, question_text FROM Questions WHERE quiz_id = :quiz_id LIMIT :limit");
         $questionsQuery->bindValue(':quiz_id', $quiz_id, PDO::PARAM_INT);
         $questionsQuery->bindValue(':limit', $number_of_questions, PDO::PARAM_INT);
         $questionsQuery->execute();
@@ -46,6 +46,9 @@ if ($quiz_id > 0) {
             $questions[$row['question_id']] = $row; // Store question by ID
             $originalOrder[] = $row['question_id']; // Store the original order of question IDs
         }
+
+        // Shuffle the original order of question IDs for display
+        shuffle($originalOrder); // Shuffle the order of question IDs
     }
 }
 
@@ -98,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@ 600;700;800&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -157,58 +160,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Back to specific module -->
                 </div>
                 <?php if ($score !== null): ?>
-    <h3>Your Score: <?php echo $score; ?> / <?php echo count($questions); ?></h3>
-    <a href="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Retake Quiz</a>
+                    <h3>Your Score: <?php echo $score; ?> / <?php echo count($questions); ?></h3>
+                    <a href="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Retake Quiz</a>
 
-    <h4>Results:</h4>
-<ul style="margin: 10px">
-    <?php foreach ($originalOrder as $question_id): // Iterate through original order ?>
-        <?php if (isset($questions[$question_id])): // Check if the question exists ?>
-            <?php
-            // Get the user's answer
-            $userAnswer = isset($submittedAnswers[$question_id]) ? $submittedAnswers[$question_id] : 'No answer submitted';
-            ?>
-            <li>
-                <strong><?php echo ($questions[$question_id]['question_text']); ?></strong><br>
-                <?php
-                // Display user's answer
-                echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
-
-                // Check if there is a correct answer
-                if (isset($correctAnswers[$question_id])): ?>
-                    <span class="text-success">Correct Answer:
-                        <?php echo htmlspecialchars($correctAnswers[$question_id]); ?></span>
-                <?php else: ?>
-                    <span class="text-danger">No Correct Answer Found</span>
-                <?php endif; ?>
-            </li>
-        <?php endif; // End of question existence check ?>
-    <?php endforeach; // End of original order loop ?>
-</ul>
-                <?php else: ?>
-                    <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>"
-                        method="POST">
-                        <?php foreach ($questions as $question): ?>
-                            <div class="mb-3">
-                                <label><strong><?php echo ($question['question_text']); ?></strong></label><br>
+                    <h4>Results:</h4>
+                    <ul style="margin: 10px">
+                        <?php foreach ($originalOrder as $question_id): // Iterate through original order ?>
+                            <?php if (isset($questions[$question_id])): // Check if the question exists ?>
                                 <?php
-                                // Fetch answers for the current question
-                                $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
-                                $answersQuery->execute(['question_id' => $question['question_id']]);
-                                $answers = $answersQuery->fetchAll(PDO::FETCH_ASSOC);
-                                foreach ($answers as $answer): ?>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio"
-                                            name="answers[<?php echo $question['question_id']; ?>]"
-                                            value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
-                                        <label class="form-check-label">
-                                            <?php echo htmlspecialchars($answer['answer_text']); ?>
-                                        </label>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endforeach; ?>
+                                // Get the user's answer
+                                $userAnswer = isset($submittedAnswers[$question_id]) ? $submittedAnswers[$question_id] : 'No answer submitted';
+                                ?>
+                                <li>
+                                    <strong><?php echo ($questions[$question_id]['question_text']); ?></strong><br>
+                                    <?php
+                                    // Display user's answer
+                                    echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
 
+                                    // Check if there is a correct answer
+                                    if (isset($correctAnswers[$question_id])): ?>
+                                        <span class="text-success">Correct Answer:
+                                            <?php echo htmlspecialchars($correctAnswers[$question_id]); ?></span>
+                                    <?php else: ?>
+                                        <span class="text-danger">No Correct Answer Found</span>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endif; // End of question existence check ?>
+                        <?php endforeach; // End of original order loop ?>
+                    </ul>
+                <?php else: ?>
+                    <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" method="POST">
+                        <?php foreach ($originalOrder as $question_id): // Use shuffled order ?>
+                            <?php if (isset($questions[$question_id])): // Check if the question exists ?>
+                                <div class="mb-3">
+                                    <label><strong><?php echo ($questions[$question_id]['question_text']); ?></strong></label><br>
+                                    <?php
+                                    // Fetch answers for the current question
+                                    $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
+                                    $answersQuery->execute(['question_id' => $question_id]); // Use the shuffled question ID
+                                    $answers = $answersQuery->fetchAll(PDO::FETCH_ASSOC);
+                                    foreach ($answers as $answer): ?>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio"
+                                                name="answers[<?php echo $question_id; ?>]"
+                                                value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
+                                            <label class="form-check-label">
+                                                <?php echo htmlspecialchars($answer['answer_text']); ?>
+                                            </label>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; // End of question existence check ?>
+                        <?php endforeach; ?>
                         <button type="submit" class="btn btn-primary">Submit Answers</button>
                     </form>
                 <?php endif; ?>
