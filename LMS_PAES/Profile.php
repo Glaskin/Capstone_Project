@@ -24,7 +24,7 @@ if (!$user_id || $user_role !== 'student') {
 }
 
 // Fetch user details from the users and student_details tables
-$stmt = $pdo->prepare("SELECT u.username AS name, u.email, sd.phone, sd.address, sd.bio, sd.avatar
+$stmt = $pdo->prepare("SELECT u.username, u.email, u.firstName, u.lastName, sd.phone, sd.address, sd.bio, sd.avatar
                        FROM users u
                        LEFT JOIN student_details sd ON u.id = sd.student_id
                        WHERE u.id = :user_id");
@@ -37,7 +37,8 @@ $user['avatar'] = $user['avatar'] ?? 'img/user-avatar.jpg';
 // Handle profile updates
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitize and assign user data
-    $user['name'] = htmlspecialchars($_POST['userName']);
+    $user['firstName'] = htmlspecialchars($_POST['firstName']);
+    $user['lastName'] = htmlspecialchars($_POST['lastName']);
     $user['email'] = htmlspecialchars($_POST['userEmail']);
     $user['phone'] = htmlspecialchars($_POST['userPhone']);
     $user['address'] = htmlspecialchars($_POST['userAddress']);
@@ -47,16 +48,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_FILES['userAvatar']) && $_FILES['userAvatar']['error'] === UPLOAD_ERR_OK) {
         $avatarDir = 'img/avatars/';
         $avatarPath = $avatarDir . basename($_FILES['userAvatar']['name']);
-        
+
         if (move_uploaded_file($_FILES['userAvatar']['tmp_name'], $avatarPath)) {
             $user['avatar'] = $avatarPath;
         }
     }
 
-    // Update the users table for name and email
-    $stmt = $pdo->prepare("UPDATE users SET username = :name, email = :email WHERE id = :user_id");
+    // Update the users table for firstName, lastName, and email
+    $stmt = $pdo->prepare("UPDATE users SET firstName = :firstName, lastName = :lastName, email = :email WHERE id = :user_id");
     $stmt->execute([
-        'name' => $user['name'],
+        'firstName' => $user['firstName'],
+        'lastName' => $user['lastName'],
         'email' => $user['email'],
         'user_id' => $user_id
     ]);
@@ -73,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insert new record into student_details
         $stmt = $pdo->prepare("INSERT INTO student_details (student_id, phone, address, bio, avatar) VALUES (:user_id, :phone, :address, :bio, :avatar)");
     }
-    
+
     // Execute the insert or update
     $stmt->execute([
         'user_id' => $user_id,
@@ -127,14 +129,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 
 <body>
-    <!-- Spinner Start
+    <!-- Spinner Start -->
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    Spinner End -->
+    <!-- Spinner End -->
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
@@ -165,11 +167,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="col-md-4">
                 <div class="card shadow-sm">
                     <img src="<?php echo htmlspecialchars($user['avatar']); ?>"
-                        class="card-img-top rounded-circle mx-auto mt-4" alt="User  Avatar"
+                        class="card-img-top rounded-circle mx-auto mt-4" alt="User Avatar"
                         style="width: 150px; height: 150px;">
                     <div class="card-body text-center">
-                        <h5 class="card-title"><?php echo htmlspecialchars($user['name']); ?></h5>
-                        <p class="card-text text-muted"><?php echo htmlspecialchars($user['email']); ?></p>
+                        <h5 class="card-title">
+                            <?php echo htmlspecialchars($user['firstName'] . ' ' . $user['lastName']); ?>
+                        </h5>
+                        <p class="card-text text-muted">Username: <?php echo htmlspecialchars($user['username']); ?></p>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit
                             Profile</button>
                     </div>
@@ -177,7 +181,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <div class="col-md-8">
                 <h3>Profile Details</h3>
-                <p class="lead"><?php echo htmlspecialchars($user['bio']); ?></p>
+                <div class="p-3 mb-3" style="border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+                    <p class="mb-0"><?php echo htmlspecialchars($user['bio']); ?></p>
+                </div>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?>
                     </li>
@@ -202,9 +208,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="modal-body">
                     <form method="POST" action="Profile.php" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <label for="userNameInput" class="form-label">Name</label>
-                            <input type="text" name="userName" class="form-control" id="userNameInput"
-                                value="<?php echo htmlspecialchars($user['name']); ?>">
+                            <label for="firstNameInput" class="form-label">First Name</label>
+                            <input type="text" name="firstName" class="form-control" id="firstNameInput"
+                                value="<?php echo htmlspecialchars($user['firstName']); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastNameInput" class="form-label">Last Name</label>
+                            <input type="text" name="lastName" class="form-control" id="lastNameInput"
+                                value="<?php echo htmlspecialchars($user['lastName']); ?>">
                         </div>
                         <div class="mb-3">
                             <label for="userEmailInput" class="form-label">Email</label>
@@ -223,12 +234,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="mb-3">
                             <label for="userBioInput" class="form-label">Bio</label>
-                            <textarea name="userBio" class="form-control"
-                                id="userBioInput"><?php echo htmlspecialchars($user['bio']); ?></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="userAvatarInput" class="form-label">Profile Picture</label>
-                            <input type="file" name="userAvatar" class="form-control" id="userAvatarInput">
+                            <textarea name="userBio" class="form-control" id="userBioInput" rows="4"
+                                style="border: 1px solid #ccc; border-radius: 5px; padding: 10px;"><?php echo htmlspecialchars($user['bio']); ?></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">Save changes</button>
                     </form>
