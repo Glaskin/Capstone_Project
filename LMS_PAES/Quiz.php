@@ -58,34 +58,42 @@ if ($quiz_id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $submittedAnswers = $_POST['answers'];
     $score = 0;
-    $answeredOrder = []; // Initialize an array to keep track of answered questions
 
-    // Iterate through the original order to maintain the order of answered questions
+    // Fetch correct answers for scoring
+    $correctAnswersQuery = $pdo->prepare("SELECT question_id, answer_text FROM Answers WHERE is_correct = TRUE AND question_id IN (SELECT question_id FROM Questions WHERE quiz_id = :quiz_id)");
+    $correctAnswersQuery->execute(['quiz_id' => $quiz_id]);
+    $correctAnswers = $correctAnswersQuery->fetchAll(PDO::FETCH_KEY_PAIR); // Fetch as key-value pairs
+
+    // Calculate the score
     foreach ($originalOrder as $question_id) {
         if (isset($submittedAnswers[$question_id])) {
-            $answeredOrder[] = $question_id; // Add to answered order if answered
-            $answer = $submittedAnswers[$question_id];
-
-            // Check if the submitted answer is correct
-            $answerQuery = $pdo->prepare("SELECT is_correct FROM Answers WHERE question_id = :question_id AND answer_text = :answer");
-            $answerQuery->execute(['question_id' => $question_id, 'answer' => $answer]);
-            $is_correct = $answerQuery->fetchColumn();
-
-            if ($is_correct) {
+            $userAnswer = $submittedAnswers[$question_id];
+            if (isset($correctAnswers[$question_id]) && $correctAnswers[$question_id] == $userAnswer) {
                 $score++;
             }
         }
-        // Update the completion status in the database
-    $stmt = $pdo->prepare("INSERT INTO user_quizzes_progress (user_id, quiz_id, completed) VALUES (:user_id, :quiz_id, TRUE) ON DUPLICATE KEY UPDATE completed = TRUE");
-    $stmt->execute(['user_id' => $user_id, 'quiz_id' => $quiz_id]);
     }
 
-    // Fetch correct answers for highlighting after submission
-    if ($quiz_id > 0) {
-        $correctAnswersQuery = $pdo->prepare("SELECT question_id, answer_text FROM Answers WHERE is_correct = TRUE AND question_id IN (SELECT question_id FROM Questions WHERE quiz_id = :quiz_id)");
-        $correctAnswersQuery->execute(['quiz_id' => $quiz_id]);
-        $correctAnswers = $correctAnswersQuery->fetchAll(PDO::FETCH_KEY_PAIR);
-    }
+    // Save the results in the user_quiz_results table
+    $stmt = $pdo->prepare("INSERT INTO user_quiz_results (user_id, quiz_id, score, completed_at) VALUES (:user_id, :quiz_id, :score, NOW())
+                            ON DUPLICATE KEY UPDATE score = :score, completed_at = NOW()");
+    $stmt->execute([
+        'user_id' => $user_id,
+        'quiz_id' => $quiz_id,
+        'score' => $score
+    ]);
+
+    // Update the completion status in the database
+    $stmt = $pdo->prepare("INSERT INTO user_quizzes_progress (user_id, quiz_id, completed) VALUES (:user_id, :quiz_id, TRUE) ON DUPLICATE KEY UPDATE completed = TRUE");
+    $stmt->execute(['user_id' => $user_id, 'quiz_id' => $quiz_id]);
+
+}
+
+// Fetch correct answers for highlighting after submission
+if ($quiz_id > 0 && $score !== null) {
+    $correctAnswersQuery = $pdo->prepare("SELECT question_id, answer_text FROM Answers WHERE is_correct = TRUE AND question_id IN (SELECT question_id FROM Questions WHERE quiz_id = :quiz_id)");
+    $correctAnswersQuery->execute(['quiz_id' => $quiz_id]);
+    $correctAnswers = $correctAnswersQuery->fetchAll(PDO::FETCH_KEY_PAIR);
 }
 ?>
 
@@ -106,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@ 600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
 
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
@@ -160,9 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="quiz">
                 <div class="d-flex justify-content-between align-items-center">
                     <h1><?php echo htmlspecialchars($quizTitle); ?></h1>
-                    <a href="Module.php?module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Back to
-                        Module</a>
-                    <!-- Back to specific module -->
+                    <a href="Module.php?module_id=<?php echo $module_id; ?>" class="btn btn-secondary">Back to Module</a>
                 </div>
                 <?php if ($score !== null): ?>
                     <h3>Your Score: <?php echo $score; ?> / <?php echo count($questions); ?></h3>
@@ -170,52 +176,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <h4>Results:</h4>
                     <ul style="margin: 10px">
-                        <?php foreach ($originalOrder as $question_id): // Iterate through original order ?>
-                            <?php if (isset($questions[$question_id])): // Check if the question exists ?>
+                        <?php foreach ($originalOrder as $question_id): ?>
+                            <?php if (isset($questions[$question_id])): ?>
                                 <?php
-                                // Get the user's answer
                                 $userAnswer = isset($submittedAnswers[$question_id]) ? $submittedAnswers[$question_id] : 'No answer submitted';
                                 ?>
                                 <li>
                                     <strong><?php echo ($questions[$question_id]['question_text']); ?></strong><br>
                                     <?php
-                                    // Display user's answer
                                     echo "<span>Your Answer: " . htmlspecialchars($userAnswer) . "</span><br>";
-
-                                    // Check if there is a correct answer
                                     if (isset($correctAnswers[$question_id])): ?>
-                                        <span class="text-success">Correct Answer:
-                                            <?php echo htmlspecialchars($correctAnswers[$question_id]); ?></span>
+                                        <span class="text-success">Correct Answer: <?php echo htmlspecialchars($correctAnswers[$question_id]); ?></span>
                                     <?php else: ?>
                                         <span class="text-danger">No Correct Answer Found</span>
                                     <?php endif; ?>
                                 </li>
-                            <?php endif; // End of question existence check ?>
-                        <?php endforeach; // End of original order loop ?>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </ul>
                 <?php else: ?>
                     <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" method="POST">
-                        <?php foreach ($originalOrder as $question_id): // Use shuffled order ?>
-                            <?php if (isset($questions[$question_id])): // Check if the question exists ?>
+                        <?php foreach ($originalOrder as $question_id): ?>
+                            <?php if (isset($questions[$question_id])): ?>
                                 <div class="mb-3">
                                     <label><strong><?php echo ($questions[$question_id]['question_text']); ?></strong></label><br>
                                     <?php
-                                    // Fetch answers for the current question
                                     $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
-                                    $answersQuery->execute(['question_id' => $question_id]); // Use the shuffled question ID
+                                    $answersQuery->execute(['question_id' => $question_id]);
                                     $answers = $answersQuery->fetchAll(PDO::FETCH_ASSOC);
                                     foreach ($answers as $answer): ?>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio"
-                                                name="answers[<?php echo $question_id; ?>]"
-                                                value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
-                                            <label class="form-check-label">
-                                                <?php echo htmlspecialchars($answer['answer_text']); ?>
-                                            </label>
+                                            <input class="form-check-input" type="radio" name="answers[<?php echo $question_id; ?>]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
+                                            <label class="form-check-label"><?php echo htmlspecialchars($answer['answer_text']); ?></label>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                            <?php endif; // End of question existence check ?>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                         <button type="submit" class="btn btn-primary">Submit Answers</button>
                     </form>
