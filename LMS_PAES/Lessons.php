@@ -14,6 +14,8 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+$user_id = $_SESSION['user_id'];
+
 // Get lesson_id from URL
 $lesson_id = $_GET['lesson_id'] ?? null;
 if (!$lesson_id) {
@@ -46,6 +48,10 @@ $previous_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
 $stmt = $pdo->prepare("SELECT id, title, position FROM lessons WHERE module_id = :module_id AND position > (SELECT position FROM lessons WHERE id = :lesson_id) LIMIT 1");
 $stmt->execute(['module_id' => $lesson['module_id'], 'lesson_id' => $lesson_id]);
 $next_lesson = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Update the completion status in the database
+$stmt = $pdo->prepare("INSERT INTO user_lessons_progress (user_id, lesson_id, completed) VALUES (:user_id, :lesson_id, TRUE) ON DUPLICATE KEY UPDATE completed = TRUE");
+$stmt->execute(['user_id' => $user_id, 'lesson_id' => $lesson_id]);
 ?>
 
 <!doctype html>

@@ -14,6 +14,8 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+$user_id = $_SESSION['user_id'];
+
 // Check if module_id is provided in the URL
 $module_id = $_GET['module_id'] ?? null;
 if (!$module_id) {
@@ -28,6 +30,16 @@ $module = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$module) {
     die("Module not found.");
 }
+
+// Fetch completed lessons for the user
+$stmt = $pdo->prepare("SELECT lesson_id FROM user_lessons_progress WHERE user_id = :user_id AND completed = TRUE");
+$stmt->execute(['user_id' => $user_id]);
+$completed_lessons = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Fetch completed quizzes for the user
+$stmt = $pdo->prepare("SELECT quiz_id FROM user_quizzes_progress WHERE user_id = :user_id AND completed = TRUE");
+$stmt->execute(['user_id' => $user_id]);
+$completed_quizzes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 // Fetch lessons associated with this module (title and type only)
 $stmt = $pdo->prepare("SELECT id, title, type FROM lessons WHERE module_id = :module_id ORDER BY position ASC");
@@ -143,29 +155,32 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($lesson['title']); ?></h5>
                             <p class="card-text text-muted">Type: <?php echo htmlspecialchars($lesson['type']); ?></p>
-                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>&module_id=<?php echo $module_id; ?>"
-                                class="btn btn-primary">Start Lesson</a>
-                        </div>
-                    </div>
+                            <a href="Lessons.php?lesson_id=<?php echo $lesson['id']; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-primary">Start Lesson</a>
+                    <?php if (in_array($lesson['id'], $completed_lessons)): ?>
+                        <span class="checkmark">✔️</span>
+                    <?php endif; ?>
                 </div>
-            <?php endforeach; ?>
+            </div>
         </div>
+    <?php endforeach; ?>
+</div>
 
         <!-- Quizzes List -->
-        <div class="row">
-            <?php foreach ($quizzes as $quiz): ?>
-                <div class="col-md-6 mb-4">
-                    <div class="card quiz-card">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($quiz['title']); ?></h5>
-                            <a href="Quiz.php?quiz_id=<?php echo $quiz['quiz_id']; ?>&module_id=<?php echo $module_id; ?>"
-                                class="btn btn-success">Start Quiz</a>
-                        </div>
-                    </div>
+<div class="row">
+    <?php foreach ($quizzes as $quiz): ?>
+        <div class="col-md-6 mb-4">
+            <div class="card quiz-card">
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo htmlspecialchars($quiz['title']); ?></h5>
+                    <a href="Quiz.php?quiz_id=<?php echo $quiz['quiz_id']; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-success">Start Quiz</a>
+                    <?php if (in_array($quiz['quiz_id'], $completed_quizzes)): ?>
+                        <span class="checkmark">✔️</span>
+                    <?php endif; ?>
                 </div>
-            <?php endforeach; ?>
+            </div>
         </div>
-    </main>
+    <?php endforeach; ?>
+</div>
     <!-- Main Content End -->
 
     <!-- Footer Start -->

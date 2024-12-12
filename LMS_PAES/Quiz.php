@@ -12,6 +12,8 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+$user_id = $_SESSION['user_id'];
+
 // Fetch the quiz ID and module ID from the URL
 $quiz_id = isset($_GET['quiz_id']) ? intval($_GET['quiz_id']) : 0;
 $module_id = isset($_GET['module_id']) ? intval($_GET['module_id']) : 0; // Get module ID

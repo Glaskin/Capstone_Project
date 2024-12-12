@@ -1,9 +1,9 @@
 <?php
 // Database connection setup
 $host = 'localhost';
-$dbname = 'paesbluy_lms_database';
+$dbname = 'lms_database';
 $username = 'root';
-$password = 'pogi';
+$password = 'pass';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -32,8 +32,8 @@ if (isset($_GET['token'])) {
         $insertStmt->bindParam(':password', $user['password']); // Ensure this is hashed before inserting
         $insertStmt->bindParam(':email', $user['email']);
         $insertStmt->bindParam(':role', $role); // Bind the role parameter
-        $insertStmt->bindParam(':firstname', $firstName);
-        $insertStmt->bindParam(':lastname', $lastName);
+        $insertStmt->bindParam(':firstname', $user['firstName']);
+        $insertStmt->bindParam(':lastname', $user['lastName']);
         if ($insertStmt->execute()) {
             // Delete the user from the temp_users table
             $deleteStmt = $pdo->prepare("DELETE FROM temp_users WHERE verification_token = :token");

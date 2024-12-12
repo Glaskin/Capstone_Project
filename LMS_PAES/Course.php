@@ -14,6 +14,8 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+$user_id = $_SESSION['user_id'];
+
 // Get course_id from URL
 $course_id = $_GET['course_id'] ?? null;
 if (!$course_id) {
