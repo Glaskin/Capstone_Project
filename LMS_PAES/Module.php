@@ -50,6 +50,16 @@ $lessons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $pdo->prepare("SELECT quiz_id, title FROM quizzes WHERE module_id = :module_id ORDER BY quiz_id ASC");
 $stmt->execute(['module_id' => $module_id]);
 $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch quizzes for the module, including number_of_questions
+$quizzesQuery = $pdo->prepare("SELECT quiz_id, title, number_of_questions FROM Quizzes WHERE module_id = :module_id");
+$quizzesQuery->execute(['module_id' => $module_id]);
+$quizzes = $quizzesQuery->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch completed quizzes and their scores
+$scoresQuery = $pdo->prepare("SELECT quiz_id, score FROM user_quiz_results WHERE user_id = :user_id");
+$scoresQuery->execute(['user_id' => $user_id]);
+$scores = $scoresQuery->fetchAll(PDO::FETCH_KEY_PAIR); // Fetch as key-value pairs (quiz_id => score)
 ?>
 
 <!doctype html>
@@ -165,7 +175,7 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php endforeach; ?>
 </div>
 
-        <!-- Quizzes List -->
+<!-- Quizzes List -->
 <div class="row">
     <?php foreach ($quizzes as $quiz): ?>
         <div class="col-md-6 mb-4">
@@ -173,6 +183,9 @@ $quizzes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="card-body">
                     <h5 class="card-title"><?php echo htmlspecialchars($quiz['title']); ?></h5>
                     <a href="Quiz.php?quiz_id=<?php echo $quiz['quiz_id']; ?>&module_id=<?php echo $module_id; ?>" class="btn btn-success">Start Quiz</a>
+                    <?php if (isset($scores[$quiz['quiz_id']])): // Check if the user has a score for this quiz ?>
+                        <span class="badge bg-success">Score: <?php echo htmlspecialchars($scores[$quiz['quiz_id']]); ?> / <?php echo htmlspecialchars($quiz['number_of_questions']); ?></span>
+                    <?php endif; ?>
                     <?php if (in_array($quiz['quiz_id'], $completed_quizzes)): ?>
                         <span class="checkmark">✔️</span>
                     <?php endif; ?>

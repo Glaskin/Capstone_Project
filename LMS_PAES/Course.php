@@ -35,6 +35,68 @@ if (!$course) {
 $stmt = $pdo->prepare("SELECT id, title FROM modules WHERE course_id = :course_id ORDER BY position ASC");
 $stmt->execute(['course_id' => $course_id]);
 $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Check completion status for each module
+$moduleCompletionStatus = [];
+foreach ($modules as $module) {
+    // Check if the module is completed
+    $moduleQuery = $pdo->prepare("SELECT completed FROM user_progress WHERE user_id = :user_id AND module_id = :module_id");
+    $moduleQuery->execute(['user_id' => $user_id, 'module_id' => $module['id']]);
+    $moduleCompleted = $moduleQuery->fetchColumn();
+
+    // Fetch lessons for the module
+    $lessonsQuery = $pdo->prepare("SELECT id FROM lessons WHERE module_id = :module_id");
+    $lessonsQuery->execute(['module_id' => $module['id']]);
+    $lessons = $lessonsQuery->fetchAll(PDO::FETCH_COLUMN);
+
+    // Check if all lessons are completed
+    $allLessonsCompleted = true;
+    foreach ($lessons as $lesson_id) {
+        $lessonQuery = $pdo->prepare("SELECT completed FROM user_lessons_progress WHERE user_id = :user_id AND lesson_id = :lesson_id");
+        $lessonQuery->execute(['user_id' => $user_id, 'lesson_id' => $lesson_id]);
+        if (!$lessonQuery->fetchColumn()) {
+            $allLessonsCompleted = false;
+            break;
+        }
+    }
+
+    // Fetch quizzes for the module
+    $quizzesQuery = $pdo->prepare("SELECT quiz_id FROM Quizzes WHERE module_id = :module_id");
+    $quizzesQuery->execute(['module_id' => $module['id']]);
+    $quizzes = $quizzesQuery->fetchAll(PDO::FETCH_COLUMN);
+
+    // Check if all quizzes are completed
+    $allQuizzesCompleted = true;
+    foreach ($quizzes as $quiz_id) {
+        $quizQuery = $pdo->prepare("SELECT completed FROM user_quizzes_progress WHERE user_id = :user_id AND quiz_id = :quiz_id");
+        $quizQuery->execute(['user_id' => $user_id, 'quiz_id' => $quiz_id]);
+        if (!$quizQuery->fetchColumn()) {
+            $allQuizzesCompleted = false;
+            break;
+        }
+    }
+
+    // Determine if the module is fully completed
+    $moduleCompletionStatus[$module['id']] = $moduleCompleted && $allLessonsCompleted && $allQuizzesCompleted;
+
+    // Update user_progress table if all lessons and quizzes are completed
+    if ($allLessonsCompleted && $allQuizzesCompleted) {
+        // Check if the record already exists
+        $checkProgressQuery = $pdo->prepare("SELECT completed FROM user_progress WHERE user_id = :user_id AND module_id = :module_id");
+        $checkProgressQuery->execute(['user_id' => $user_id, 'module_id' => $module['id']]);
+        $existingProgress = $checkProgressQuery->fetchColumn();
+
+        if ($existingProgress !== false) {
+            // Update existing record
+            $updateQuery = $pdo->prepare("UPDATE user_progress SET completed = TRUE WHERE user_id = :user_id AND module_id = :module_id");
+            $updateQuery->execute(['user_id' => $user_id, 'module_id' => $module['id']]);
+        } else {
+            // Insert new record
+            $insertQuery = $pdo->prepare("INSERT INTO user_progress (user_id, module_id, completed) VALUES (:user_id, :module_id, TRUE)");
+            $insertQuery->execute(['user_id' => $user_id, 'module_id' => $module['id']]);
+        }
+    }
+}
 ?>
 
 <!doctype html>
@@ -141,6 +203,9 @@ $modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             data-bs-target="#collapse<?php echo $index; ?>" aria-expanded="false"
                             aria-controls="collapse<?php echo $index; ?>">
                             <?php echo htmlspecialchars($module['title']); ?>
+                            <?php if ($moduleCompletionStatus[$module['id']]): ?>
+                                <span class="checkmark">✔️</span>
+                            <?php endif; ?>
                         </button>
                     </h2>
                     <div id="collapse<?php echo $index; ?>" class="accordion-collapse collapse"
