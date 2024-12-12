@@ -27,29 +27,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "Email and password are required.";
     } else {
         // Fetch user data
-$stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = :email");
-$stmt->bindParam(':email', $email);
-$stmt->execute();
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT id, password, role FROM users WHERE email = :email");
+        $stmt->bindParam(':email', $email);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Check if user exists and password is correct
-if ($user && password_verify($password, $user['password'])) {
-    // Store user information in session
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['role'] = $user['role'];
+        // Check if user exists and password is correct
+        if ($user && password_verify($password, $user['password'])) {
+            // Store user information in session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
 
-    // Redirect based on user role
-    if ($user['role'] === 'admin') {
-        header("Location: AdminDashboard.php");
-    } elseif ($user['role'] === 'faculty') {
-        header("Location: FacultyDashboard.php");
-    } else {
-        header("Location: Dashboard.php"); // Redirect students to the student dashboard
-    }
-    exit();
-} else {
-    $error_message = "Invalid email or password.";
-}
+            // Redirect based on user role
+            if ($user['role'] === 'admin') {
+                header("Location: AdminDashboard.php");
+            } elseif ($user['role'] === 'faculty') {
+                header("Location: FacultyDashboard.php");
+            } else {
+                header("Location: Dashboard.php"); // Redirect students to the student dashboard
+            }
+            exit();
+        } else {
+            $error_message = "Invalid email or password.";
+        }
     }
 }
 ?>
@@ -86,17 +86,18 @@ if ($user && password_verify($password, $user['password'])) {
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link rel="stylesheet" href="bootstrap-offline/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style2.css" />
     <link rel="stylesheet" href="css/login/login.css" />
 </head>
 
 <body>
-    
+
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
         <a href="index.php" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px"><span
-                    style="color: #000000;"> </span></p>
+            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px">PAES<span
+                    style="color: #000000;"> REVIEW</span></p>
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -130,8 +131,13 @@ if ($user && password_verify($password, $user['password'])) {
 
             <div class="mb-3">
                 <label for="inputPassword" class="form-label">Password</label>
-                <input type="password" name="password" class="form-control" id="inputPassword" required>
-                <div id="passwordHelp" class="form-text"><a href="ForgotPassword.php">Forget password?</a></div>
+                <div class="input-group">
+                    <input type="password" name="password" class="form-control" id="inputPassword" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye" id="toggleIcon"></i>
+                    </button>
+                </div>
+                <div id="passwordHelp" class="form-text"><a href="ForgotPassword.php">Forgot password?</a></div>
             </div>
 
             <div class="mb-3 form-check">
@@ -156,6 +162,7 @@ if ($user && password_verify($password, $user['password'])) {
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+    <script src="js/login/login.js"></script>
 </body>
 
 </html>

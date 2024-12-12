@@ -1,18 +1,15 @@
-function login(event) {
-  event.preventDefault();
-
-  const sampleEmail = "";
-  const samplePass = "";
-
-  const email = document.getElementById("inputEmail").value;
-  const password = document.getElementById("inputPassword").value;
-
-  if (email === sampleEmail && password === samplePass) {
-    window.location.href = "dashboard.html";
-    console.log("LOGGED IN");
+document.getElementById('togglePassword').addEventListener('click', function () {
+  const passwordInput = document.getElementById('inputPassword');
+  const toggleIcon = document.getElementById('toggleIcon');
+  
+  // Toggle password visibility
+  if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.classList.remove('bi-eye');
+      toggleIcon.classList.add('bi-eye-slash');
   } else {
-    alert("Incorrect email or password");
+      passwordInput.type = 'password';
+      toggleIcon.classList.remove('bi-eye-slash');
+      toggleIcon.classList.add('bi-eye');
   }
-
-  return false;
-}
+});

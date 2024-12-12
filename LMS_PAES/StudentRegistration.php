@@ -24,7 +24,9 @@ $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Retrieve and sanitize form inputs
-    $name = trim($_POST['studentName']);
+    $name = trim($_POST['username']);
+    $firstName = trim($_POST['firstName']);
+    $lastName = trim($_POST['lastName']);
     $email = trim($_POST['studentEmail']);
     $password = $_POST['studentPassword'];
     $confirmPassword = $_POST['confirmPassword'];
@@ -33,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $minPasswordLength = 8;
 
     // Validate form inputs
-    if (empty($name) || empty($email) || empty($password) || empty($confirmPassword)) {
+    if (empty($name) || empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($confirmPassword)) {
         $error_message = "All fields are required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Invalid email format.";
@@ -84,11 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Store the user temporarily in a separate table or session
                 $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hash the password
-                $stmt = $pdo->prepare("INSERT INTO temp_users (username, password, email, verification_token) VALUES (:name, :password, :email, :token)");
+                $stmt = $pdo->prepare("INSERT INTO temp_users (username, password, email, verification_token, firstName, LastName) VALUES (:name, :password, :email, :token, :firstname, :lastname)");
                 $stmt->bindParam(':name', $name);
                 $stmt->bindParam(':password', $hashedPassword); // Bind the hashed password
                 $stmt->bindParam(':email', $email);
                 $stmt->bindParam(':token', $token); // Bind the token
+                $stmt->bindParam(':firstname', $firstName);
+                $stmt->bindParam(':lastname', $lastName);
 
                 if ($stmt->execute()) {
                     // Set success message
@@ -112,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="google-translate-customization" content="9f841e7780177523-3214ceb76f765f38-gc38c6fe6f9d06436-c">
-    </meta>
 
     <title>PAES REVIEW : Register</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -138,7 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
 
     <!-- Customized Bootstrap Stylesheet -->
-    <link rel="stylesheet" href="bootstrap-offline/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/style2.css" />
     <link rel="stylesheet" href="css/login/registration.css" />
 </head>
 
@@ -146,8 +150,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
         <a href="index.php" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px"><span
-                    style="color: #000000;"> </span></p>
+            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px">PAES<span
+                    style="color: #000000;"> REVIEW</span></p>
         </a>
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -169,37 +173,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             style="max-width: 400px;">
             <h4 class="text-center mb-4">Registration</h4>
 
-            <?php
-            // Display error message if there is one
-            if (!empty($error_message)) {
-                echo '<div class="alert alert-danger" role="alert">' . $error_message . '</div>';
-            }
-            // Display success message if there is one
-            if (!empty($success_message)) {
-                echo '<div class="alert alert-success" role="alert">' . $success_message . '</div>';
-            }
-            ?>
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
+            <?php elseif (!empty($success_message)): ?>
+                <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
+            <?php endif; ?>
 
-            <div class="mb-3 mt-4">
-                <label for="studentName" class="form-label">Name</label>
-                <input type="text" class="form-control" id="studentName" name="studentName" required />
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username"
+                    value="<?= htmlspecialchars($_POST['username'] ?? '') ?>" required />
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName"
+                        value="<?= htmlspecialchars($_POST['firstName'] ?? '') ?>" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName"
+                        value="<?= htmlspecialchars($_POST['lastName'] ?? '') ?>" required />
+                </div>
             </div>
             <div class="mb-3">
                 <label for="studentEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="studentEmail" name="studentEmail" required />
+                <input type="email" class="form-control" id="studentEmail" name="studentEmail"
+                    value="<?= htmlspecialchars($_POST['studentEmail'] ?? '') ?>" required />
             </div>
             <div class="mb-3">
                 <label for="studentPassword" class="form-label">Password</label>
-                <input type="password" class="form-control" id="studentPassword" name="studentPassword" required />
+                <div class="input-group">
+                    <input type="password" name="studentPassword" class="form-control" id="studentPassword" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggleStudentPassword">
+                        <i class="bi bi-eye" id="toggleStudentIcon"></i>
+                    </button>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+                <div class="input-group">
+                    <input type="password" name="confirmPassword" class="form-control" id="confirmPassword" required>
+                    <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                        <i class="bi bi-eye" id="toggleConfirmIcon"></i>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-4">Register</button>
+            <p class="text-center mt-3">Already have an account? <a href="LandingPage.php">Login</a></p>
         </form>
     </div>
-
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -210,6 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
+    <script src="js/login/registration.js"></script>
 </body>
 
 </html>
