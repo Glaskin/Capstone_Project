@@ -40,7 +40,6 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch system and course-specific announcements
 // Fetch announcements
 $stmt = $pdo->prepare("
     SELECT title, content, date 
@@ -85,19 +84,20 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style2.css">
+    <link rel="stylesheet" href="css/Style.css">
 
 
 </head>
 
 <body>
-    <!-- Spinner Start -->
+    <!-- Spinner Start
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    <!-- Spinner End -->
+    Spinner End -->
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
@@ -123,8 +123,8 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Navbar End -->
 
     <div class="content" style="margin-top: 100px;">
-        <!-- Welcome Section -->
-        <div id="Welcome" class="text-center py-5">
+         <!-- Welcome Section -->
+         <div id="Welcome" class="text-center py-5">
             <h1>Welcome,
                 <span id="userName">
                     <?php
@@ -135,8 +135,8 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <p>Manage your courses and keep track of your progress here.</p>
         </div>
 
-
         <!-- Recent Activities and Next Lesson Section -->
+        <!--
         <div class="row mx-4">
             <div class="col-sm-6 mb-3">
                 <div class="card">
@@ -160,7 +160,7 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Courses Section -->
         <div class="container my-5">
@@ -169,8 +169,8 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php foreach ($user['courses'] as $course): ?>
                     <div class="col-md-4 mb-4 d-flex align-items-stretch">
                         <div class="card">
-                            <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
-                                alt="Course Image" height="235">
+                            <!-- <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
+                                alt="Course Image" height="235"> -->
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($course['title']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars($course['description']); ?></p>
