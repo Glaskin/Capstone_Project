@@ -58,12 +58,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $pdo->prepare("DELETE FROM courses WHERE id = :id");
         $stmt->execute(['id' => $courseId]);
         $activeTab = 'courses';
-    } elseif (isset($_POST['addAnnouncement'])) {
-        // Add Announcement logic
+    } elseif (isset($_POST['editAnnouncement'])) {
+        $announcementId = $_POST['announcementId'];
         $announcementTitle = $_POST['announcementTitle'];
         $announcementContent = $_POST['announcementContent'];
-        $stmt = $pdo->prepare("INSERT INTO announcements (title, content) VALUES (:title, :content)");
-        $stmt->execute(['title' => $announcementTitle, 'content' => $announcementContent]);
+
+        $stmt = $pdo->prepare("
+            UPDATE announcements 
+            SET title = :title, content = :content 
+            WHERE id = :id
+        ");
+        $stmt->execute([
+            'title' => $announcementTitle,
+            'content' => $announcementContent,
+            'id' => $announcementId
+        ]);
+
         $activeTab = 'announcement';
     } elseif (isset($_POST['deleteAnnouncement'])) {
         $announcementId = $_POST['announcementId'];
@@ -76,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Fetch all users, courses, and announcements
 $users = $pdo->query("SELECT id, username, email, role FROM users")->fetchAll(PDO::FETCH_ASSOC);
 $courses = $pdo->query("SELECT id, title, description FROM courses")->fetchAll(PDO::FETCH_ASSOC);
-$announcements = $pdo->query("SELECT id, title, content FROM announcements")->fetchAll(PDO::FETCH_ASSOC);
+$announcements = $pdo->query("SELECT id, title, content, date FROM announcements")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -118,14 +128,35 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
 
 <body class="bg-warning text-light">
 
-    <!-- Spinner Start 
+    <!-- Spinner Start -->
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-     Spinner End -->
+    <!-- Spinner End -->
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
+        <a href="Dashboard.php" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
+            <p class="m-0 fw-bold" style="font-size: 25px;"><img src="img/icon.png" alt="" height="50px">PAES<span
+                    style="color: #000000;"> ADMIN</span></p>
+        </a>
+        <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a href="AdminDashboard.php" class="nav-item nav-link">Admin</a>
+                <a href="LandingPage.php" class="nav-item nav-link">Logout</a>
+                <a href="#" class="nav-item nav-link">
+                    <div id="google_translate_element">
+                    </div>
+                </a>
+            </div>
+        </div>
+    </nav>
 
     <div class="container mt-5">
         <h1 class="text-center mb-4">Admin Dashboard</h1>
@@ -158,7 +189,6 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                     <input type="password" name="password" placeholder="Password" class="form-control mb-2" required>
                     <select name="role" class="form-select mb-2" required>
                         <option value="student">Student</option>
-                        <option value="faculty">Faculty</option>
                         <option value="admin">Admin</option>
                     </select>
                     <button type="submit" name="addUser" class="btn btn-success">Add User</button>
@@ -191,7 +221,7 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                                             value="<?php echo htmlspecialchars($user['email']); ?>" required>
                                         <button type="submit" name="editUser" class="btn btn-warning btn-sm">Save</button>
                                         <button type="submit" name="deleteUser"
-                                            class="btn btn-danger btn-sm">Delete</button>
+                                            class="btn btn-danger btn-sm" style="background-color: #ff6666 !important; color: black !important;">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -241,7 +271,7 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                                             required><?php echo htmlspecialchars($course['description']); ?></textarea>
                                         <button type="submit" name="editCourse" class="btn btn-warning btn-sm">Save</button>
                                         <button type="submit" name="deleteCourse"
-                                            class="btn btn-danger btn-sm">Delete</button>
+                                            class="btn btn-danger btn-sm" style="background-color: #ff6666 !important; color: black !important;">Delete</button>
                                     </form>
                                     <a href="ManageCourse.php?course_id=<?php echo $course['id']; ?>"
                                         class="btn btn-info btn-sm mt-2">Edit Content</a>
@@ -264,48 +294,102 @@ $announcements = $pdo->query("SELECT id, title, content FROM announcements")->fe
                         rows="3" required></textarea>
                     <button type="submit" name="addAnnouncement" class="btn btn-success">Post Announcement</button>
                 </form>
-                <table class="table table-bordered ```php
-                table-dark table-striped">
+                <table class="table table-bordered table-dark table-striped">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
                             <th>Content</th>
+                            <th>Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($announcements as $announcement): ?>
                             <tr>
-                                <td><?php echo $announcement['id']; ?></td>
+                                <td><?php echo htmlspecialchars($announcement['id']); ?></td>
                                 <td><?php echo htmlspecialchars($announcement['title']); ?></td>
                                 <td><?php echo htmlspecialchars($announcement['content']); ?></td>
+                                <td><?php echo htmlspecialchars($announcement['date']); ?></td>
                                 <td>
+                                    <!-- Edit Button -->
+                                    <button class="btn btn-primary btn-sm" style="width: 65px; color: black !important;" data-bs-toggle="modal"
+                                        data-bs-target="#editAnnouncementModal<?php echo $announcement['id']; ?>">
+                                        Edit
+                                    </button>
+
+                                    <!-- Delete Button -->
                                     <form method="POST" action="AdminDashboard.php" style="display: inline;">
                                         <input type="hidden" name="announcementId"
                                             value="<?php echo $announcement['id']; ?>">
-                                        <button type="submit" name="deleteAnnouncement"
-                                            class="btn btn-danger btn-sm">Delete</button>
+                                        <button type="submit" name="deleteAnnouncement" class="btn btn-danger btn-sm mt-2"
+                                            style="width: 65px; background-color: #ff6666 !important; color: black !important;">
+                                            Delete
+                                        </button>
                                     </form>
                                 </td>
                             </tr>
+
+                            <!-- Edit Modal -->
+                            <div class="modal fade" id="editAnnouncementModal<?php echo $announcement['id']; ?>"
+                                tabindex="-1" aria-labelledby="editAnnouncementModalLabel<?php echo $announcement['id']; ?>"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title"
+                                                id="editAnnouncementModalLabel<?php echo $announcement['id']; ?>">Edit
+                                                Announcement</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <form method="POST" action="AdminDashboard.php">
+                                            <div class="modal-body">
+                                                <input type="hidden" name="announcementId"
+                                                    value="<?php echo $announcement['id']; ?>">
+                                                <div class="mb-3">
+                                                    <label for="announcementTitle<?php echo $announcement['id']; ?>"
+                                                        class="form-label" style="color: black !important;">Title</label>
+                                                    <input type="text" name="announcementTitle"
+                                                        id="announcementTitle<?php echo $announcement['id']; ?>"
+                                                        class="form-control"
+                                                        value="<?php echo htmlspecialchars($announcement['title']); ?>"
+                                                        required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="announcementTitle<?php echo $announcement['id']; ?>"
+                                                        class="form-label" style="color: black !important;">Content</label>
+                                                    <textarea name="announcementContent"
+                                                        id="announcementContent<?php echo $announcement['id']; ?>"
+                                                        class="form-control" rows="3"
+                                                        required><?php echo htmlspecialchars($announcement['content']); ?></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" name="editAnnouncement" class="btn btn-primary">Save
+                                                    Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/wow/wow.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
 
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+                <!-- JavaScript Libraries -->
+                <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="lib/wow/wow.min.js"></script>
+                <script src="lib/easing/easing.min.js"></script>
+                <script src="lib/waypoints/waypoints.min.js"></script>
+                <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+
+                <!-- Template Javascript -->
+                <script src="js/main.js"></script>
 </body>
 
 </html>

@@ -24,9 +24,9 @@ if (!$user_id || $user_role !== 'student') {
 }
 
 // Fetch user profile details
-$stmt = $pdo->prepare("SELECT username AS name FROM users WHERE id = :user_id");
+$stmt = $pdo->prepare("SELECT firstName, lastName FROM users WHERE id = :user_id");
 $stmt->execute(['user_id' => $user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC) ?? ['name' => 'Student'];
+$user = $stmt->fetch(PDO::FETCH_ASSOC) ?? ['firstName' => 'Student', 'lastName' => ''];
 
 // Since student progress is not implemented, we'll set default values for recent activity and next lesson
 $user['recentActivity'] = 'No recent activity';
@@ -39,15 +39,16 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute();
 $user['courses'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Fetch system and course-specific announcements
+// Fetch announcements
 $stmt = $pdo->prepare("
-    SELECT title, date, type 
-    FROM announcements 
-    WHERE type = 'system' 
-    OR course_id IN (SELECT course_id FROM enrollments WHERE student_id = :user_id)
+    SELECT title, content, date 
+    FROM announcements
 ");
-$stmt->execute(['user_id' => $user_id]);
+$stmt->execute();
 $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 
@@ -84,20 +85,19 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style2.css">
-    <link rel="stylesheet" href="css/Style.css">
 
 
 </head>
 
 <body>
-    <!-- Spinner Start
+    <!-- Spinner Start -->
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    Spinner End -->
+    <!-- Spinner End -->
 
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg bg-warning navbar-light shadow sticky-top p-0">
@@ -125,12 +125,18 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="content" style="margin-top: 100px;">
         <!-- Welcome Section -->
         <div id="Welcome" class="text-center py-5">
-            <h1>Welcome, <span id="userName"><?php echo htmlspecialchars($user['name'] ?? 'Student'); ?></span>!</h1>
+            <h1>Welcome,
+                <span id="userName">
+                    <?php
+                    echo htmlspecialchars(($user['firstName'] ?? 'Student') . ' ' . ($user['lastName'] ?? ''));
+                    ?>
+                </span>!
+            </h1>
             <p>Manage your courses and keep track of your progress here.</p>
         </div>
 
+
         <!-- Recent Activities and Next Lesson Section -->
-        <!--
         <div class="row mx-4">
             <div class="col-sm-6 mb-3">
                 <div class="card">
@@ -154,7 +160,7 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
 
         <!-- Courses Section -->
         <div class="container my-5">
@@ -163,8 +169,8 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php foreach ($user['courses'] as $course): ?>
                     <div class="col-md-4 mb-4 d-flex align-items-stretch">
                         <div class="card">
-                            <!-- <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
-                                alt="Course Image" height="235"> -->
+                            <img src="<?php echo htmlspecialchars($course['image']); ?>" class="card-img-top"
+                                alt="Course Image" height="235">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($course['title']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars($course['description']); ?></p>
@@ -184,10 +190,12 @@ $user['announcements'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <h2 class="text-center mb-4">Announcement Board</h2>
             <ul class="list-group" id="announcementBoard">
                 <?php foreach ($user['announcements'] as $announcement): ?>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <?php echo htmlspecialchars($announcement['title']); ?>
-                        <span class="badge bg-<?php echo htmlspecialchars($announcement['type']); ?> rounded-pill">Date:
-                            <?php echo htmlspecialchars($announcement['date']); ?></span>
+                    <li class="list-group-item">
+                        <div>
+                            <h5 class="mb-1"><?php echo htmlspecialchars($announcement['title']); ?></h5>
+                            <p class="mb-1"><?php echo htmlspecialchars($announcement['content']); ?></p>
+                            <small class="text-muted">Date: <?php echo htmlspecialchars($announcement['date']); ?></small>
+                        </div>
                     </li>
                 <?php endforeach; ?>
             </ul>
