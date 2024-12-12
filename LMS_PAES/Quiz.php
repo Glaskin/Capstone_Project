@@ -75,6 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $score++;
             }
         }
+        // Update the completion status in the database
+    $stmt = $pdo->prepare("INSERT INTO user_quizzes_progress (user_id, quiz_id, completed) VALUES (:user_id, :quiz_id, TRUE) ON DUPLICATE KEY UPDATE completed = TRUE");
+    $stmt->execute(['user_id' => $user_id, 'quiz_id' => $quiz_id]);
     }
 
     // Fetch correct answers for highlighting after submission
