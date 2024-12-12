@@ -58,11 +58,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $pdo->prepare("DELETE FROM courses WHERE id = :id");
         $stmt->execute(['id' => $courseId]);
         $activeTab = 'courses';
+        //announcement
+    } elseif (isset($_POST['addAnnouncement'])) {
+        // Logic for adding a new announcement
+        $announcementTitle = $_POST['announcementTitle'];
+        $announcementContent = $_POST['announcementContent'];
+
+        // Insert the new announcement into the database
+        $stmt = $pdo->prepare("
+            INSERT INTO announcements (title, content, date) 
+            VALUES (:title, :content, NOW())
+        ");
+        $stmt->execute([
+            'title' => $announcementTitle,
+            'content' => $announcementContent,
+        ]);
+
+        $activeTab = 'announcement';
+
     } elseif (isset($_POST['editAnnouncement'])) {
+        // Logic for editing an existing announcement
         $announcementId = $_POST['announcementId'];
         $announcementTitle = $_POST['announcementTitle'];
         $announcementContent = $_POST['announcementContent'];
 
+        // Update the announcement in the database
         $stmt = $pdo->prepare("
             UPDATE announcements 
             SET title = :title, content = :content 
@@ -71,14 +91,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([
             'title' => $announcementTitle,
             'content' => $announcementContent,
-            'id' => $announcementId
+            'id' => $announcementId,
         ]);
 
         $activeTab = 'announcement';
+
     } elseif (isset($_POST['deleteAnnouncement'])) {
+        // Logic for deleting an announcement
         $announcementId = $_POST['announcementId'];
+
         $stmt = $pdo->prepare("DELETE FROM announcements WHERE id = :id");
         $stmt->execute(['id' => $announcementId]);
+
         $activeTab = 'announcement';
     }
 }
@@ -220,8 +244,8 @@ $announcements = $pdo->query("SELECT id, title, content, date FROM announcements
                                             class="form-control mb-2"
                                             value="<?php echo htmlspecialchars($user['email']); ?>" required>
                                         <button type="submit" name="editUser" class="btn btn-warning btn-sm">Save</button>
-                                        <button type="submit" name="deleteUser"
-                                            class="btn btn-danger btn-sm" style="background-color: #ff6666 !important; color: black !important;">Delete</button>
+                                        <button type="submit" name="deleteUser" class="btn btn-danger btn-sm"
+                                            style="background-color: #ff6666 !important; color: black !important;">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -270,8 +294,8 @@ $announcements = $pdo->query("SELECT id, title, content, date FROM announcements
                                             class="form-control mb-2" rows="2"
                                             required><?php echo htmlspecialchars($course['description']); ?></textarea>
                                         <button type="submit" name="editCourse" class="btn btn-warning btn-sm">Save</button>
-                                        <button type="submit" name="deleteCourse"
-                                            class="btn btn-danger btn-sm" style="background-color: #ff6666 !important; color: black !important;">Delete</button>
+                                        <button type="submit" name="deleteCourse" class="btn btn-danger btn-sm"
+                                            style="background-color: #ff6666 !important; color: black !important;">Delete</button>
                                     </form>
                                     <a href="ManageCourse.php?course_id=<?php echo $course['id']; ?>"
                                         class="btn btn-info btn-sm mt-2">Edit Content</a>
@@ -313,7 +337,8 @@ $announcements = $pdo->query("SELECT id, title, content, date FROM announcements
                                 <td><?php echo htmlspecialchars($announcement['date']); ?></td>
                                 <td>
                                     <!-- Edit Button -->
-                                    <button class="btn btn-primary btn-sm" style="width: 65px; color: black !important;" data-bs-toggle="modal"
+                                    <button class="btn btn-primary btn-sm" style="width: 65px; color: black !important;"
+                                        data-bs-toggle="modal"
                                         data-bs-target="#editAnnouncementModal<?php echo $announcement['id']; ?>">
                                         Edit
                                     </button>
