@@ -48,10 +48,6 @@ if ($quiz_id > 0) {
         // Shuffle the questions for display
         shuffle($questions); // Shuffle the questions array directly
 
-        echo '<pre>';
-        print_r($questions);
-        echo '</pre>';
-
         // Limit the number of questions displayed
         $questions = array_slice($questions, 0, $number_of_questions);
     }
@@ -62,9 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $submittedAnswers = $_POST['answers'];
     $score = 0;
 
-    echo '<pre>';
-    print_r($submittedAnswers);
-    echo '</pre>';
 
     // Fetch correct answers for scoring
     $correctAnswersQuery = $pdo->prepare("SELECT question_id, answer_text FROM Answers WHERE is_correct = TRUE AND question_id IN (SELECT question_id FROM Questions WHERE quiz_id = :quiz_id)");
