@@ -323,28 +323,32 @@ if ($editing_question_id) {
             <h1><?php echo htmlspecialchars($quiz['title']); ?></h1>
 
             <h2 class="mt-5">Questions Bank</h2>
-            <ul class="list-group">
-                <?php foreach ($quiz_questions as $question): ?>
-                    <li class="list-group-item">
-                        <?php echo ($question['question_text']); ?>
-                        <a href="?delete_question=<?php echo $question['question_id']; ?>&quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>"
-                            class="btn btn-danger btn-sm float-end"
-                            onclick="return confirm('Are you sure you want to delete this question?');">Delete</a>
-                        <a href="?quiz_id=<?php echo $quiz_id; ?>&edit_question=<?php echo $question['question_id']; ?>&module_id=<?php echo $module_id; ?>"
-                            class="btn btn-warning btn-sm float-end me-2">Edit</a>
-                        <ul>
-                            <?php if (isset($answers[$question['question_id']])): ?>
-                                <?php foreach ($answers[$question['question_id']] as $answer): ?>
-                                    <li><?php echo htmlspecialchars($answer['answer_text']); ?>
-                                        (<?php echo $answer['is_correct'] ? 'Correct' : 'Incorrect'; ?>)</li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li>No answers available for this question.</li>
-                            <?php endif; ?>
-                        </ul>
-                    </li>
-                <?php endforeach; ?>
+<ul class="list-group">
+    <?php 
+    $questionNumber = 1; // Initialize a counter for numbering
+    foreach ($quiz_questions as $question): ?>
+        <li class="list-group-item">
+            <?php echo $questionNumber . '. ' . ($question['question_text']); // Display the question number and text ?>
+            <a href="?delete_question=<?php echo $question['question_id']; ?>&quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>"
+                class="btn btn-danger btn-sm float-end"
+                onclick="return confirm('Are you sure you want to delete this question?');">Delete</a>
+            <a href="?quiz_id=<?php echo $quiz_id; ?>&edit_question=<?php echo $question['question_id']; ?>&module_id=<?php echo $module_id; ?>"
+                class="btn btn-warning btn-sm float-end me-2">Edit</a>
+            <ul>
+                <?php if (isset($answers[$question['question_id']])): ?>
+                    <?php foreach ($answers[$question['question_id']] as $answer): ?>
+                        <li><?php echo htmlspecialchars($answer['answer_text']); ?>
+                            (<?php echo $answer['is_correct'] ? 'Correct' : 'Incorrect'; ?>)</li>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <li>No answers available for this question.</li>
+                <?php endif; ?>
             </ul>
+        </li>
+        <?php 
+        $questionNumber++; // Increment the counter for the next question
+    endforeach; ?>
+</ul>
 
             <h2 class="mt-5"><?php echo $editing_question ? 'Edit Question' : 'Add New Question'; ?></h2>
             <form method="POST"

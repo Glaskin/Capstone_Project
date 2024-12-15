@@ -126,7 +126,13 @@ if ($quiz_id > 0 && $score !== null) {
 
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/style2.css">
-
+    <style>
+    .your-answer {
+        font-weight: bold;
+        color: #007bff; /* Change to your preferred color */
+        padding: 5px;
+    }
+    </style>
 </head>
 
 <body>
@@ -191,7 +197,7 @@ if ($quiz_id > 0 && $score !== null) {
         ?>
             <li>
                 <strong><?php echo ($question['question_text']); ?></strong><br>
-                <span><b>Your Answer: <?php echo htmlspecialchars($userAnswer); ?></b></span><br>
+                <span><strong>Your Answer: <?php echo htmlspecialchars($userAnswer); ?></strong></span><br>
                 <?php if (isset($correctAnswers[$question_id])): ?>
                     <span class="text-success">Correct Answer: <?php echo htmlspecialchars($correctAnswers[$question_id]); ?></span>
                 <?php else: ?>
@@ -201,31 +207,31 @@ if ($quiz_id > 0 && $score !== null) {
         <?php else: ?>
             <li>
                 <strong>Question not found.</strong><br>
-                <span><b>Your Answer: <?php echo htmlspecialchars($userAnswer); ?></b></span><br>
+                <span><strong>Your Answer: <?php echo htmlspecialchars($userAnswer); ?></strong></span><br>
             </li>
         <?php endif; ?>
     <?php endforeach; ?>
 </ul>
                 <?php else: ?>
-                    <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" method="POST">
-                        <?php foreach ($questions as $question): ?>
-                            <div class="mb-3">
-                                <label><strong><?php echo ($question['question_text']); ?></strong></label><br>
-                                <?php
-                                // Fetch answers for the current question
-                                $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
-                                $answersQuery->execute(['question_id' => $question['question_id']]);
-                                $answers = $answersQuery->fetchAll(PDO::FETCH_ASSOC);
-                                foreach ($answers as $answer): ?>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
-                                        <label class="form-check-label"><?php echo htmlspecialchars($answer['answer_text']); ?></label>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endforeach; ?>
-                        <button type="submit" class="btn btn-primary">Submit Answers</button>
-                    </form>
+                    <form action="Quiz.php?quiz_id=<?php echo $quiz_id; ?>&module_id=<?php echo $module_id; ?>" method="POST" onsubmit="return validateForm()">
+    <?php foreach ($questions as $question): ?>
+        <div class="mb-3">
+            <label><strong><?php echo ($question['question_text']); ?></strong></label><br>
+            <?php
+            // Fetch answers for the current question
+            $answersQuery = $pdo->prepare("SELECT answer_text FROM Answers WHERE question_id = :question_id");
+            $answersQuery->execute(['question_id' => $question['question_id']]);
+            $answers = $answersQuery->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($answers as $answer): ?>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="answers[<?php echo $question['question_id']; ?>]" value="<?php echo htmlspecialchars($answer['answer_text']); ?>" required>
+                    <label class="form-check-label"><?php echo htmlspecialchars($answer['answer_text']); ?></label>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endforeach; ?>
+    <button type="submit" class="btn btn-primary">Submit Answers</button>
+</form>
                 <?php endif; ?>
             </div>
         </div>
@@ -252,7 +258,27 @@ if ($quiz_id > 0 && $score !== null) {
     <script src="lib/easing/easing.min.js"></script>
     <script src="lib/waypoints/waypoints.min.js"></script>
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+            
+    <script>
+function validateForm() {
+    const questions = <?php echo json_encode($questions); ?>; // Get questions from PHP
+    let allAnswered = true;
 
+    questions.forEach(question => {
+        const questionId = question.question_id;
+        const answer = document.querySelector(`input[name="answers[${questionId}]"]:checked`);
+        if (!answer) {
+            allAnswered = false; // If any question is not answered
+        }
+    });
+
+    if (!allAnswered) {
+        alert("Please answer all questions before submitting.");
+        return false; // Prevent form submission
+    }
+    return true; // Allow form submission
+}
+</script>
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
 

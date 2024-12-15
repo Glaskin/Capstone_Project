@@ -17,10 +17,17 @@ try {
 $user_id = $_SESSION['user_id'];
 
 // Check if module_id is provided in the URL
-$module_id = $_GET['module_id'] ?? null;
+$module_id = $_GET['module_id'] ?? null; // Set module_id from URL or null if not present
 if (!$module_id) {
-    die("Module ID is required.");
+    die("Module ID is required."); // Handle the case where module_id is not provided
 }
+
+// Fetch all modules
+$stmt = $pdo->query("SELECT id, title FROM modules ORDER BY id ASC");
+$all_modules = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Determine current module index
+$current_module_index = array_search($module_id, array_column($all_modules, 'id'));
 
 // Fetch module details
 $stmt = $pdo->prepare("SELECT title FROM modules WHERE id = :module_id"); // Use 'id' as the primary key
@@ -149,6 +156,7 @@ $scores = $scoresQuery->fetchAll(PDO::FETCH_KEY_PAIR); // Fetch as key-value pai
     </nav>
     <!-- Navbar End -->
 
+
     <!-- Main Content Start -->
     <main class="container mt-5 content"> <!-- Add 'content' class here -->
         <!-- Module Title Section -->
@@ -156,7 +164,16 @@ $scores = $scoresQuery->fetchAll(PDO::FETCH_KEY_PAIR); // Fetch as key-value pai
             <h2 class="mb-3"><?php echo htmlspecialchars($module['title']); ?></h2>
             <p class="text-muted">Explore the lessons and quizzes within this module to deepen your knowledge.</p>
         </div>
-
+        <!-- Navigation Buttons -->
+<div class="module-navigation text-center mb-4">
+    <?php if ($current_module_index > 0): ?>
+        <a href="Module.php?module_id=<?php echo $all_modules[$current_module_index - 1]['id']; ?>" class="btn btn-secondary">Previous Module</a>
+    <?php endif; ?>
+    
+    <?php if ($current_module_index < count($all_modules) - 1): ?>
+        <a href="Module.php?module_id=<?php echo $all_modules[$current_module_index + 1]['id']; ?>" class="btn btn-secondary">Next Module</a>
+    <?php endif; ?>
+</div>
         <!-- Lessons List -->
         <div class="row">
             <?php foreach ($lessons as $lesson): ?>
