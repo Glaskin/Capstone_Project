@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+html { scroll-behavior: smooth; }
+body {
+  @apply bg-stone-50 text-stone-800 antialiased dark:bg-stone-950 dark:text-stone-200;
+}
+:focus-visible { @apply outline-2 outline-offset-2 outline-emerald-600; }
+
+/* Subtle field-row texture over hero areas (an overlay, so it doesn't replace the gradient) */
+@layer components {
+  .furrows { position: relative; isolation: isolate; }
+  .furrows::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 14px);
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+}
